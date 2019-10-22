@@ -134,8 +134,13 @@ void scene(in vec3 x, out vec2 sdf)
     
     mfnoise(x.xy, 80., 800., .3, nhi);
     
-    sdf = vec2(x.z+1.*nlo-.1*abs(nhi), 1.);
+    float nd;
+    lfnoise(1.e-1*x.y*c.xx, nd);
+    
+    sdf = vec2(x.z+(1.*nlo-.1*abs(nhi))+2.*smoothstep(.7,-.3,abs(x.x-1.2*nd)), 1.);
     sdf.x += .1;
+    
+    add(sdf, vec2(x.z+1., 3.), sdf);
 }
 
 void normal(in vec3 x, out vec3 n, in float dx)
@@ -280,7 +285,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
         x,
         c1 = c.yyy,
         l;
-    int N = 150,
+    int N = 450,
         i;
     float d,
         dlower,
@@ -291,7 +296,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     
     analytical_sphere(o, dir, 20., dsky_sphere);
     analytical_plane(o, dir, c.yyx, dupper);
-    analytical_plane(o+.2*c.yyx, dir, c.yyx, dlower);
+    analytical_plane(o+1.*c.yyx, dir, c.yyx, dlower);
     
     vec2 first_hit = vec2(dupper, 0.);
     add(first_hit, vec2(dsky_sphere.y, 1.), first_hit);
@@ -305,30 +310,37 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
         {
             x = o + d * dir;
             scene(x,s);
-            if(s.x < 1.e-5) break;
-            d += s.x;
+            if(s.x < 1.e-3) break;
+//             d += s.x<1.e-2?min(s.x,1.e-2):s.x;
+            d += min(s.x, 5.e-2);
         }
         
         if(i<N)
         {
             normal(x, n, 5.e-2);
             l = normalize(x + .5*n);
-            
-            col = mix(vec3(0.18,0.07,0.03), vec3(0.19,0.16,0.18), x.z);
-            col = .1*col 
-                + .2*col*dot(l, n)
-                + .4*col*pow(abs(dot(reflect(l,n),dir)),2.);
+          
+            if(s.y == 3.)
+            {
+                col = c.yxy;
+            }
+            else
+            {
+                col = mix(vec3(0.18,0.07,0.03), vec3(0.19,0.16,0.18), x.z);
+                col = .1*col 
+                    + .2*col*dot(l, n)
+                    + .4*col*pow(abs(dot(reflect(l,n),dir)),2.);
+            }
         }
+        
         col = mix(col, vec3(0.63,0.24,0.13), dot(n,c.yxx));
         col = mix(col, c.yyy, dot(n,c.yzy));
-//         col = mix(col, vec3(0.93,0.72,0.15), dot(n,c.yzz));
         col = mix(col, vec3(0.42,0.27,0.22), tanh(.05 *(d+5.*abs(x.z))));
-        
         col *= .5*col;
-        
         col = mix(col, .5*vec3(0.89,0.66,0.47), abs(x.z*x.z));
         
 //         col += vec3(0.42,0.27,0.22)
+//         col = mix(col.grb, col, clamp(iTime/2.,0.,1.));
     }
     else if(first_hit.y == 1.) // Sky
     {
@@ -357,6 +369,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 //     col = mix(col,mix(col, c.xxx, .2), sm(min(z.x,z.y)));
     
     col = mix(col, vec3(0.71,0.95,0.38), .1);
+    
+//     col *= 5.*col;
     
     fragColor = vec4(clamp(col,0.,1.),1.);
 }
