@@ -36,6 +36,7 @@ const float pi = acos(-1.);
 const vec3 c = vec3(1.0, 0.0, -1.0);
 float a = 1.0;
 const float ra = .5;
+float gTime;
 
 void rand(in vec2 x, out float n)
 {
@@ -121,7 +122,7 @@ mat3 gR;
 vec2 ind = c.yy;
 void scene(in vec3 x, out vec2 sdf)
 {
-    x.y += .3*iTime;
+    x.y += .3*gTime;
     
     float nlo,
         nhi;
@@ -155,23 +156,6 @@ void normal(in vec3 x, out vec3 n, in float dx)
     scene(x+dx*c.yyx, na);
     n.z = na.x;
     n = normalize(n-s.x);
-}
-
-
-void palette(in float scale, out vec3 col)
-{
-    scale = clamp(scale, 1.e-2,.99);
-    const int N = 5;
-    vec3 colors[N] = vec3[N](
-mix(vec3(0.20,0.27,0.35),vec3(1.00,0.00,0.47), step(fract(.25*iTime),.5)),
-mix(vec3(0.29,0.37,0.45),vec3(0.80,0.00,0.47), step(fract(.25*iTime),.5)),
-mix(vec3(0.36,0.65,0.64),vec3(0.60,0.00,0.47), step(fract(.25*iTime),.5)),
-mix(vec3(0.66,0.85,0.80),vec3(0.40,0.00,0.47), step(fract(.25*iTime),.5)),
-mix(vec3(0.95,0.92,0.82),c.yyy,step(fract(.5*iTime),.25))
-    );
-	float index = floor(scale*float(N)), 
-        remainder = scale*float(N)-index;
-    col = mix(colors[int(index)],colors[int(index)+1], remainder);
 }
 
 float sm(in float d)
@@ -223,27 +207,37 @@ void analytical_plane(in vec3 o, in vec3 dir, in vec3 plane_normal, out float d)
 
 void evening_sky(in vec2 uv, out vec3 col)
 {
-    col = mix(vec3(0.97,0.85,0.22), vec3(1.00,0.49,0.25), uv.y);
+    col = mix(vec3(0.97,0.85,0.22).rbg, vec3(1.00,0.49,0.25), uv.y);
     col = sqrt(abs(col));
     
-    float n, hf_parts;
+    float n, hf_parts, na;
+
     lfnoise(uv, n);
-    
-    
     mfnoise(uv, 2.,15.e3, .45, hf_parts);
     n = mix(n, hf_parts, .5);
     
-    col = mix(col, vec3(0.87,0.33,0.18), clamp(.2+1.9*n,0.,1.));
-    float na;
-    lfnoise(3.*uv, na);
-    mfnoise(uv, 3.,15.e3, .45, hf_parts);
+    col = mix(col, vec3(0.87,0.33,0.48), clamp(abs(.5+1.9*n)-.4,0.,1.));
+//     col = mix(col, c.yyy, clamp(abs(-.5+1.9*n)-.3,0.,1.));
+//     float na;
+//     lfnoise(3.*uv, na);
+//     mfnoise(uv, 3.,15.e3, .45, hf_parts);
+//     n = mix(n, hf_parts, .5);
+//     n -= .2*na;
+    lfnoise(uv+.03*c.yx, n);
+    mfnoise(uv+.03*c.yx, 2.,15.e3, .65, hf_parts);
     n = mix(n, hf_parts, .5);
-    n -= .2*na;
-    col = mix(col, vec3(0.45,0.14,0.04), clamp(.2+.9*n,0.,1.));
 
-    lfnoise(3.*uv, na);
-    n += .5*na;
-    col = mix(col, vec3(0.45,0.14,0.04), clamp(.2+.9*n,0.,1.));
+    col = mix(col, vec3(0.45,0.14,0.04), clamp(abs(-.2+.9*n)-.3,0.,1.));
+
+//     lfnoise(3.*uv, na);
+//     n += .5*na;
+    
+    lfnoise(uv+.06*c.yx, n);
+    mfnoise(uv+.06*c.yx, 2.,15.e3, .55, hf_parts);
+    n = mix(n, hf_parts, .5);
+
+    col = mix(col, c.xxy, clamp(abs(-.3+.9*n)-.2,0.,1.));
+    col = mix(col, vec3(.01,.05,.13), clamp(abs(-.3+.9*n)-.05,0.,1.));
     
     col = mix(col, .75*vec3(0.42,0.27,0.22), sm(uv.y-.3+.3*n));
     //col = mix(col, vec3(0.11,0.05,0.11), clamp(.7+.3*n,0.,1.));
@@ -264,10 +258,12 @@ void needle_tree(in vec2 uv, inout vec3 col)
     col = mix(col, c.yyy, sm(d));
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord)
+void mainImage(out vec4 fragColor, in vec2 fragCoord, in float t_)
 {
     // Set up global variables
 //     rot3(vec3(1.1,1.3,1.5)*iTime, gR);
+    
+    gTime = t_;
     
     // Set up coordinates and camera
     vec2 uv = (fragCoord.xy-.5*iResolution.xy)/iResolution.y,
@@ -317,7 +313,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
         
         if(i<N)
         {
-            normal(x, n, 5.e-2);
+            normal(x, n, 8.e-2);
             l = normalize(x + .5*n);
           
             if(s.y == 3.)
@@ -333,7 +329,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
             }
         }
         
-        col = mix(col, vec3(0.63,0.24,0.13), dot(n,c.yxx));
+        float na;
+        lfnoise(128.*x.xy, na);
+        
+        col = mix(col, mix(vec3(0.63,0.24,0.13), c.yxy, .15+.15*na), dot(n,c.yxx));
         col = mix(col, c.yyy, dot(n,c.yzy));
         col = mix(col, vec3(0.42,0.27,0.22), tanh(.05 *(d+5.*abs(x.z))));
         col *= .5*col;
@@ -377,7 +376,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 
 void main()
 {
-    mainImage(gl_FragColor, gl_FragCoord.xy);
+    vec4 cc = c.yyyy;
+    for(float dt = -.05; dt <= .05; dt += .05)
+    {
+        mainImage(gl_FragColor, gl_FragCoord.xy, iTime + dt);
+        cc += gl_FragColor;
+    }
+    cc /= 3.;
+    gl_FragColor = cc;
 }
 
 
