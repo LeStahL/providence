@@ -18,6 +18,9 @@
 
 #define DEBUG
 
+#define data_width 256
+float idata[data_width*data_width];
+
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
 #	define VC_EXTRALEAN
@@ -30,7 +33,7 @@
 #endif
 
 #include <GL/gl.h>
-#include <glext.h>
+#include "../glext.h"
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -275,7 +278,7 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     ShowCursor(FALSE);
 
     // Load shader
-    FILE *f = fopen("fconv.frag", "rt");
+    FILE *f = fopen("../fconv.frag", "rt");
     fseek(f, 0, SEEK_END);
     size_t len = ftell(f);
     char *source = (char*)malloc(len+1);
@@ -298,18 +301,12 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
         iDataWidthLocation = glGetUniformLocation(program_handle, "iDataWidth");
 
     // Setup input
-#define data_width 10
 
     int idata_texture_handle;
-    float idata[data_width*data_width];
-
-    for(int i=0; i<data_width*data_width/2; ++i)
-    {
-        idata[2*i] = (float)i;
-        idata[2*i+1] = (float)i;
-        printf("%e", idata[i]);
-    }
-    printf("\n");
+    printf("Generating input.\n");
+    for(int i=0; i<data_width*data_width; ++i)
+        idata[i] = i;
+    printf("Generated input.\n");
 
     glGenTextures(1, &idata_texture_handle);
     glBindTexture(GL_TEXTURE_2D, idata_texture_handle);
