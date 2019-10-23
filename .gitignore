@@ -1,3 +1,15 @@
+build
+*.kdev4
+*.kate-swp
+*.kate_swp
+*__pycache__
+.vs
+/CMakeSettings.json
+/CMakeLists.txt.*
+
+# Generated headers
+/shaders.gen.h
+
 # Prerequisites
 *.d
 
@@ -6,6 +18,7 @@
 *.ko
 *.obj
 *.elf
+*.pyc
 
 # Linker output
 *.ilk

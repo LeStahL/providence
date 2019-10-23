@@ -1,0 +1,10 @@
+{
+    "scenes": [
+        {
+            "name": "Forest Mountains",
+            "prefix": "forestmountains",
+            "t_end": 32,
+            "t_start": 0
+        }
+    ]
+}

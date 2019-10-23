@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
  
- #version 130
+#version 130
 
 out vec4 gl_FragColor;
 
