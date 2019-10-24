@@ -19,7 +19,8 @@
 #define DEBUG
 
 #define data_width 256
-float idata[data_width*data_width];
+#define texture_width 182
+unsigned short idata[data_width*data_width];
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -312,13 +313,15 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     glBindTexture(GL_TEXTURE_2D, idata_texture_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, data_width, data_width, 0, GL_RED, GL_FLOAT, idata);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+//     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, idata);
 
+    printf("Generated input texture.\n");
+    
     // Setup output
-    float odata[data_width*data_width];
+    unsigned short odata[data_width*data_width];
     
     int output_framebuffer;
     glGenFramebuffers(1, &output_framebuffer);
@@ -329,30 +332,35 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     glBindTexture(GL_TEXTURE_2D, odata_texture_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, data_width, data_width, 0, GL_RED, GL_FLOAT, odata);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+//     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, odata);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, odata_texture_handle, 0);
-
+    glFlush();
+    printf("Generated output texture.\n");
+    
     // Main loop
-    glViewport(0,0,data_width,data_width);
+    glViewport(0,0,texture_width,texture_width);
 
     glUniform1i(iDataLocation, 0);
-    glUniform1i(iDataWidthLocation, data_width);
+    glUniform1i(iDataWidthLocation, texture_width);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, idata_texture_handle);
 
     draw();
     
-    glReadPixels(0,0,data_width, data_width, GL_RED, GL_FLOAT, odata);
+    glReadPixels(0,0,texture_width, texture_width, GL_RGBA, GL_UNSIGNED_BYTE, odata);
     glFlush();
     
+    FILE *fa = fopen("fconv.out", "wt");
     for(int i=0; i<data_width*data_width; ++i)
     {
-        printf("%d: %.12f -> %.12f\n", i, idata[i], odata[i]);
+        if(idata[i] != odata[i]) fprintf(fa,"%d: %d -> %d\n", i, idata[i], odata[i]);
     }
-    
+    fclose(fa);
+    printf("Success.\n");
+    Sleep(1000.);
     return 0;
 }

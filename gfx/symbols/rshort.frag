@@ -19,7 +19,7 @@ void rshort(in float off, out float val)
     //   in order to always "hit" the right pixel. Pixel width is
     //     1./iFontWidth.
     //   Half of it is in the center of the pixel.
-    vec2 ind = (vec2(mod(off, iFontWidth), floor(off/iFontWidth))+.05)/iFontWidth;
+    vec2 ind = (vec2(mod(off, iFontWidth), floor(off/iFontWidth)))/iFontWidth;
     // Get 4 bytes of data from the texture
     vec4 block = texture(iFont, ind);
     // Select the appropriate word
