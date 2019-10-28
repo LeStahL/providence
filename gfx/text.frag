@@ -66,8 +66,6 @@ float sm(float d)
     return smoothstep(1.5/iResolution.y, -1.5/iResolution.y, d);
 }
 
-void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance);
-
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     scale(iScale);

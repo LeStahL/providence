@@ -6,6 +6,8 @@
 
 UINT nDevices, nOutputDevices;
 
+double faders[8], dials[8];
+
 void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     if(wMsg == MIM_DATA)

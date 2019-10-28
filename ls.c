@@ -448,63 +448,6 @@ void load_demo()
     
 #ifdef MIDI
     initControllers();
-//     UINT nMidiDeviceNum;
-//     MIDIINCAPS caps;
-//     
-// 	nMidiDeviceNum = midiInGetNumDevs();
-// 	if(nMidiDeviceNum == 0) 
-//     {
-//         printf("No MIDI input devices connected.\n");
-//     }
-//     else
-//     {
-//         printf("Available MIDI devices:\n");
-//         for (unsigned int i = 0; i < nMidiDeviceNum; ++i) 
-//         {
-//             midiInGetDevCaps(i, &caps, sizeof(MIDIINCAPS));
-//             printf("->%d: %s ", i, caps.szPname);
-//             
-//             if(!strcmp("APC40 mkII", caps.szPname))
-//             {
-//                 HMIDIIN hMidiDevice;
-//                 MMRESULT rv = midiInOpen(&hMidiDevice, i, (DWORD)(void*)MidiInProc_apc40mk2, 0, CALLBACK_FUNCTION);
-//                 midiInStart(hMidiDevice);
-//                 
-//                 printf(" >> opened.\n");
-//             }
-//             else
-//             {
-//                 printf("(Unsupported MIDI controller).\n");
-//             }
-//         }
-//     }
-/*    
-    MIDIOUTCAPS ocaps;
-    nMidiDeviceNum = midiOutGetNumDevs();
-
-    if(nMidiDeviceNum == 0) 
-    {
-        printf("No MIDI output devices connected.\n");
-    }
-    else
-    {
-        printf("Available MIDI devices:\n");
-        for (unsigned int i = 0; i < nMidiDeviceNum; ++i) 
-        {
-            midiOutGetDevCaps(i, &ocaps, sizeof(MIDIOUTCAPS));
-            printf("->%d: %s ", i, ocaps.szPname);
-            
-            if(!strcmp("APC40 mkII", ocaps.szPname))
-            {
-                MMRESULT rv = midiOutOpen (&hMidiOut, i, 0, 0, CALLBACK_NULL);
-            }
-            else
-            {
-                printf("(Unsupported MIDI controller).\n");
-            }
-        }
-    }*/
-    
 #endif
 }
 
