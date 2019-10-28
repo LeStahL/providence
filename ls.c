@@ -536,6 +536,24 @@ void draw()
     
     quad();
     glBindTexture(GL_TEXTURE_2D, 0);
+/*    
+#ifdef MIDI
+    
+    for(int i=0; i<40; ++i)
+    {
+        int x = i % 8,
+            y = i/8;
+        double r = .5+.5*cos(t+(double)x/8.),
+            g = .5+.5*cos(t+(double)y/8.+3.),
+            b = .5+.5*cos(t+(double)x/8.-3.);
+        printf("%le, %le, %le\n", r, g, b);
+        int colorIndex = apcIndexFromRGB(r, g, b);
+        apcButtonOn(i, colorIndex);
+        printf("(%d,%d): %d\n", x, y, colorIndex);
+    }
+    
+#endif*/
+    
 }
 
 
