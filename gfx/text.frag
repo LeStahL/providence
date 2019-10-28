@@ -120,8 +120,15 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 //         new.gba = mix(new.gba, vec3(1.00,0.40,0.39), sm(d));
         stroke(d-.001, .0005, d);
         new.gba = mix(new.gba, c.xxx, sm(d));
+        
+        dglyph(uv, 97., .5, d);
+        d = abs(d)-.02;
+        new.gba = mix(new.gba, c.yyy, sm(d));
     }
     
+    
+    
+   /* 
     if(iTime < 20.)
     {
         float sc = clamp(iTime-10.,0.,1.)*(1.-clamp(iTime-18.,0.,1.)),
@@ -229,7 +236,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         new.gba = mix(new.gba, vec3(.9,.2,.03), sm(da));
         stroke(da-.005, .001, da);
         new.gba = mix(new.gba, c.xxx, sm(da));
-    }
+    }*/
     
     
     // 
