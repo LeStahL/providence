@@ -19,6 +19,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+const char *demoname = "Providence/Team210";
+
 #include "config.h"
 #include "engine/renderer.h"
 #include "engine/shader.h"
@@ -249,7 +251,8 @@ float texs = 512;
 int block_size = 512 * 512,
 nblocks1;
 unsigned int paused = 0, 
-    recording = 0;
+    recording = 0,
+    muted = 0;
 char record_filename[1024];
 
 double t_paused;

@@ -23,8 +23,9 @@
 
 #define DEMO
 
-const char *demoname = "Providence/Team210";
-unsigned int muted = 0.;
+#ifdef MIDI
+#include "engine/midi.h"
+#endif
 
 int _fltused = 0;
 
@@ -66,7 +67,7 @@ void select_button(int index)
     btns = 1+(btns+1)%125;
     midiOutShortMsg(hMidiOut, out_msg);
 }
-
+/*
 #define NOTE_OFF 0x8
 #define NOTE_ON 0x9
 #define CONTROL_CHANGE 0xB
@@ -261,7 +262,7 @@ void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
     }
     
 	return;
-}
+}*/
 #endif
 
 void create_render_framebuffers()
@@ -446,37 +447,38 @@ void load_demo()
 	initialize_sound();
     
 #ifdef MIDI
-    UINT nMidiDeviceNum;
-    MIDIINCAPS caps;
-    
-	nMidiDeviceNum = midiInGetNumDevs();
-	if(nMidiDeviceNum == 0) 
-    {
-        printf("No MIDI input devices connected.\n");
-    }
-    else
-    {
-        printf("Available MIDI devices:\n");
-        for (unsigned int i = 0; i < nMidiDeviceNum; ++i) 
-        {
-            midiInGetDevCaps(i, &caps, sizeof(MIDIINCAPS));
-            printf("->%d: %s ", i, caps.szPname);
-            
-            if(!strcmp("APC40 mkII", caps.szPname))
-            {
-                HMIDIIN hMidiDevice;
-                MMRESULT rv = midiInOpen(&hMidiDevice, i, (DWORD)(void*)MidiInProc_apc40mk2, 0, CALLBACK_FUNCTION);
-                midiInStart(hMidiDevice);
-                
-                printf(" >> opened.\n");
-            }
-            else
-            {
-                printf("(Unsupported MIDI controller).\n");
-            }
-        }
-    }
-    
+    initControllers();
+//     UINT nMidiDeviceNum;
+//     MIDIINCAPS caps;
+//     
+// 	nMidiDeviceNum = midiInGetNumDevs();
+// 	if(nMidiDeviceNum == 0) 
+//     {
+//         printf("No MIDI input devices connected.\n");
+//     }
+//     else
+//     {
+//         printf("Available MIDI devices:\n");
+//         for (unsigned int i = 0; i < nMidiDeviceNum; ++i) 
+//         {
+//             midiInGetDevCaps(i, &caps, sizeof(MIDIINCAPS));
+//             printf("->%d: %s ", i, caps.szPname);
+//             
+//             if(!strcmp("APC40 mkII", caps.szPname))
+//             {
+//                 HMIDIIN hMidiDevice;
+//                 MMRESULT rv = midiInOpen(&hMidiDevice, i, (DWORD)(void*)MidiInProc_apc40mk2, 0, CALLBACK_FUNCTION);
+//                 midiInStart(hMidiDevice);
+//                 
+//                 printf(" >> opened.\n");
+//             }
+//             else
+//             {
+//                 printf("(Unsupported MIDI controller).\n");
+//             }
+//         }
+//     }
+/*    
     MIDIOUTCAPS ocaps;
     nMidiDeviceNum = midiOutGetNumDevs();
 
@@ -501,7 +503,7 @@ void load_demo()
                 printf("(Unsupported MIDI controller).\n");
             }
         }
-    }
+    }*/
     
 #endif
 }

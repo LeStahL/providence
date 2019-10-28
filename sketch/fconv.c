@@ -62,6 +62,15 @@ PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
 PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
 
+unsigned short rshort_cpu(int off)
+{
+    char *bytes = (char*) idata;
+    int hilo = off % 2;
+    off /= 2;
+    char *data = bytes + off + (hilo?2:0);
+    return 255*data[0] + 65280*data[1];
+}
+
 // TODO: remove below
 void debug(int shader_handle)
 {
@@ -313,8 +322,8 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     glBindTexture(GL_TEXTURE_2D, idata_texture_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 //     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, idata);
 
@@ -332,8 +341,8 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     glBindTexture(GL_TEXTURE_2D, odata_texture_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 //     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, odata);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, odata_texture_handle, 0);
@@ -357,7 +366,7 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     FILE *fa = fopen("fconv.out", "wt");
     for(int i=0; i<data_width*data_width; ++i)
     {
-        if(idata[i] != odata[i]) fprintf(fa,"%d: %d -> %d\n", i, idata[i], odata[i]);
+        if(idata[i] != odata[i]) fprintf(fa,"%d: %d -> %d @cpu: %d\n", i, idata[i], odata[i], rshort_cpu(idata[i]));
     }
     fclose(fa);
     printf("Success.\n");
