@@ -25,6 +25,11 @@ void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
             button = b3;
         
         printf("Akai APC40 mkII: wMsg=MIM_DATA, dwParam1=%08x, byte=%02x %02x h_%01x l_%01x %02x, dwParam2=%08x\n", dwParam1, b1, b2, b3hi, b3lo, b4, dwParam2);
+        
+        if(b4 == 0xb0 && b3hi == 0x3) // Dial
+            dials[b3lo] = (double)b2/(double)0x7f;
+        else if(b4hi == 0xb && b3 == 0x07)
+            faders[b4lo] = (double)b2/(double)0x7f;
     }
     
 	return;
@@ -47,6 +52,14 @@ void CALLBACK MidiInProc_nanoKONTROL2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstan
             button = b3;
         
         printf("KORG nanoKONTROL2: wMsg=MIM_DATA, dwParam1=%08x, byte=%02x %02x h_%01x l_%01x %02x, dwParam2=%08x\n", dwParam1, b1, b2, b3hi, b3lo, b4, dwParam2);
+        
+        if(b4 == 0xb0) // Fader or dial
+        {
+            if(b3hi == 0) // Fader
+                faders[b3lo] = (double)b2/(double)0x7f;
+            else if(b3hi == 1) // Dial
+                dials[b3lo] = (double)b2/(double)0x7f;
+        }
     }
     
 	return;
