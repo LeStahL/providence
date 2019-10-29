@@ -65,6 +65,7 @@ void dint(in vec2 x, in float num, in float size, in float ndigits, out float ds
 void dtime(in vec2 x, in float num, in float size, out float dst);
 
 void addwindow(in vec2 uv, inout vec3 col, in vec2 dimension);
+void addprogressbar(in vec2 uv, inout vec3 col, in vec2 dimensions, in float progress);
 
 float sm(float d)
 {
@@ -76,7 +77,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     a = iResolution.x/iResolution.y;
     vec2 uv = fragCoord/iResolution.yy-0.5*vec2(a, 1.0);
     
-    float d;
+    float d, da;
 
     vec4 old = texture(iChannel0, fragCoord/iResolution), 
         new = c.yyyy;
@@ -89,8 +90,34 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     {
         // window
         vec3 c1 = new.gba;
-        addwindow(uv, new.gba, vec2(.72,.15));
-//         new.gba = mix(new.gba, c1, sc);
+        addwindow(uv, new.gba, vec2(.72,.3));
+        
+        // fader values
+        addprogressbar(uv-vec2(-.52,.2-.05*0.), new.gba, vec2(.1,.015), iFader0);
+        addprogressbar(uv-vec2(-.52,.2-.05*1.), new.gba, vec2(.1,.015), iFader1);
+        addprogressbar(uv-vec2(-.52,.2-.05*2.), new.gba, vec2(.1,.015), iFader2);
+        addprogressbar(uv-vec2(-.52,.2-.05*3.), new.gba, vec2(.1,.015), iFader3);
+        addprogressbar(uv-vec2(-.52,.2-.05*4.), new.gba, vec2(.1,.015), iFader4);
+        addprogressbar(uv-vec2(-.52,.2-.05*5.), new.gba, vec2(.1,.015), iFader5);
+        addprogressbar(uv-vec2(-.52,.2-.05*6.), new.gba, vec2(.1,.015), iFader6);
+        addprogressbar(uv-vec2(-.52,.2-.05*7.), new.gba, vec2(.1,.015), iFader7);
+        
+        dfloat(uv-vec2(-.38,.2-.05*0.), iFader0, .009, d);
+        dfloat(uv-vec2(-.38,.2-.05*1.), iFader1, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*2.), iFader2, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*3.), iFader3, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*4.), iFader4, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*5.), iFader5, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*6.), iFader6, .009, da);
+        d = min(d,da);
+        dfloat(uv-vec2(-.38,.2-.05*7.), iFader7, .009, da);
+        d = min(d,da);
+        new.gba = mix(new.gba, c.xxx, sm(d));
     }
     
 //     if(uv.y > .38) // Ui overlay with time counter and credits
