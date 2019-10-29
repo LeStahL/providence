@@ -28,101 +28,11 @@ const float pi = acos(-1.);
 void dbox(in vec2 x, in vec2 b, out float d);
 void dlinesegment(in vec2 x, in vec2 p1, in vec2 p2, out float d);
 void stroke(in float d0, in float s, out float d);
-
-void rand(in vec2 x, out float n)
-{
-    x += 400.;
-    n = fract(sin(dot(sign(x)*abs(x) ,vec2(12.9898,78.233)))*43758.5453);
-}
-
-void lfnoise(in vec2 t, out float n)
-{
-    vec2 i = floor(t);
-    t = fract(t);
-    t = smoothstep(c.yy, c.xx, t);
-    vec2 v1, v2;
-    rand(i, v1.x);
-    rand(i+c.xy, v1.y);
-    rand(i+c.yx, v2.x);
-    rand(i+c.xx, v2.y);
-    v1 = c.zz+2.*mix(v1, v2, t.y);
-    n = mix(v1.x, v1.y, t.x);
-}
-
-void mfnoise(in vec2 x, in float d, in float b, in float e, out float n)
-{
-    n = 0.;
-    float a = 1., nf = 0., buf;
-    for(float f = d; f<b; f *= 2.)
-    {
-        lfnoise(f*x, buf);
-        n += a*buf;
-        a *= e;
-        nf += 1.;
-    }
-    n *= (1.-e)/(1.-pow(e, nf));
-}
-
-// Creative Commons Attribution-ShareAlike 4.0 International Public License
-// Created by David Hoskins.
-// See https://www.shadertoy.com/view/4djSRW
-void hash22(in vec2 p, out vec2 d)
-{
-	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    d = fract((p3.xx+p3.yz)*p3.zy);
-}
-
-void dist(in vec2 a, in vec2 b, out float d)
-{
-    d = length(b-a);
-}
-
-void nearest_controlpoint(in vec2 x, out vec2 p)
-{
-    float dmin = 1.e5, 
-        d;
-    vec2 dp,
-        y = floor(x);
-    
-    float i = 0.;
-    for(float i = -1.; i <= 1.; i += 1.)
-        for(float j = -1.; j <= 1.; j += 1.)
-        {
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            dist(x, dp, d);
-            if(d<dmin)
-            {
-                dmin = d;
-                p = dp;
-            }
-        }
-}
-
-void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance)
-{
-    d = 1.e4;
-    vec2 y,
-        dp;
-    
-    nearest_controlpoint(x, p);
-    y = floor(p);
-    
-    control_distance = 1.e4;
-    
-    for(float i = -2.; i <= 2.; i += 1.)
-        for(float j = -2.; j <= 2.; j += 1.)
-        {
-            if(i==0. && j==0.) continue;
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            vec2 o = p - dp;
-            float l = length(o);
-            d = min(d,abs(.5*l-dot(x-dp,o)/l));
-            control_distance = min(control_distance,.5*l);
-        }
-}
+void rand(in vec2 x, out float n);
+void lfnoise(in vec2 t, out float n);
+void mfnoise(in vec2 x, in float d, in float b, in float e, out float n);
+void hash22(in vec2 p, out vec2 d);
+void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance);
 
 void dleaf(in vec2 x, in float N, in float R, out float d)
 {
@@ -246,7 +156,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     addwindow(uv, col, vec2(.3,.2));
     addprogressbar(uv, col, vec2(.28,.02), iProgress);
     
-    fragColor = vec4(col,1.0);
+    // Scan lines
+    col += vec3(0., 0.05, 0.1)*sin(uv.y*1050.);
+    
+    fragColor = vec4(clamp(col,0.,1.),1.0);
 }
 
 void main()
