@@ -93,19 +93,19 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         addwindow(uv-.45*vec2(-.45*a,1.-2.*.008*c.yx), new.gba, vec2(.4,.04));
         addwindow((uv-.45*vec2(.97*a,1.-2.*.008*c.yx))*c.zx, new.gba, vec2(.1,.04));
         float da;
-        dstring((uv-.45*vec2(-.55*a,1.+4.*.008)), 9., .004, d);
-        dstring((uv-.45*vec2(-.55*a,1.+2.*.008)), 10., .004, da);
+        dstring((uv-.45*vec2(-.55*a,1.+4.*.008)), 4., .004, d);
+        dstring((uv-.45*vec2(-.55*a,1.+2.*.008)), 5., .004, da);
         d = min(d,da);
-        dstring((uv-.45*vec2(-.55*a,1.)), 11., .004, da);
+        dstring((uv-.45*vec2(-.55*a,1.)), 6., .004, da);
         d = min(d,da);
-        dstring((uv-.45*vec2(-.55*a,1.-2.*.008)), 12., .004, da);
+        dstring((uv-.45*vec2(-.55*a,1.-2.*.008)), 7., .004, da);
         d = min(d,da);
-        dstring((uv-.45*vec2(-.55*a,1.-4.*.008)), 13., .004, da);
+        dstring((uv-.45*vec2(-.55*a,1.-4.*.008)), 8., .004, da);
         d = min(d,da);
         new.gba = mix(new.gba, mix(new.gba, c.xxx, 1.), sm(d));
         
         // Add Static text
-        dstring((uv-.45*vec2(-.85*a,1.)), 3., .02, d); // Team210
+        dstring((uv-.45*vec2(-.85*a,1.)), 2., .02, d); // Team210
         
         new.gba = mix(new.gba, mix(new.gba,c.xxx,.5), sm(d));
         stroke(d-.002, .002, d);
@@ -120,10 +120,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 //         new.gba = mix(new.gba, vec3(1.00,0.40,0.39), sm(d));
         stroke(d-.001, .0005, d);
         new.gba = mix(new.gba, c.xxx, sm(d));
-        
-        dglyph(uv, 97., .5, d);
-        d = abs(d)-.02;
-        new.gba = mix(new.gba, c.yyy, sm(d));
     }
     
     
