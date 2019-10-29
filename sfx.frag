@@ -193,13 +193,21 @@ uniform float iSequenceWidth;
 
 #define SAFETY_SHIFT 1.e-5
 // Read short value from texture at index off
-float rshort(float off)
+float rshort(in float off)
 {
+    // Parity of offset determines which byte is required.
     float hilo = mod(off, 2.);
-    off *= .5;
-    vec2 ind = (vec2(mod(off, iSequenceWidth), floor(off/iSequenceWidth)))/iSequenceWidth + SAFETY_SHIFT;
-    vec4 block = texture(iSequence, ind);
+    // Find the pixel offset your data is in (2 unsigned shorts per pixel).
+    off = .5*off;
+    // Find texture coordinates matching offset
+    vec2 ind = vec2(mod(off, iSequenceWidth), floor(off/iSequenceWidth));
+    // Determine data block
+    vec4 block = texelFetch(iSequence, ivec2(ind), 0);
+    // Select the appropriate word
     vec2 data = mix(block.rg, block.ba, hilo);
+    // Convert bytes to unsigned short. The lower bytes operate on 255,
+    // the higher bytes operate on 65280, which is the maximum range 
+    // of 65535 minus the lower 255.
     return round(dot(vec2(255., 65280.), data));
 }
 
