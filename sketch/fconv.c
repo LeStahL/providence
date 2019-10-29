@@ -19,7 +19,7 @@
 #define DEBUG
 
 #define data_width 256
-#define texture_width 182
+// #define texture_width 183
 unsigned short idata[data_width*data_width];
 
 #ifdef WIN32
@@ -182,6 +182,8 @@ void draw()
 
 int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
+    int texture_width = (int)ceil((float)data_width/sqrt(2.));
+    
 #ifdef DEBUG
     AllocConsole();
     freopen("CONIN$", "r", stdin);
@@ -315,7 +317,7 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     int idata_texture_handle;
     printf("Generating input.\n");
     for(int i=0; i<data_width*data_width; ++i)
-        idata[i] = i;
+        idata[i] = 65535.*rand()/(float)RAND_MAX;
     printf("Generated input.\n");
 
     glGenTextures(1, &idata_texture_handle);
@@ -341,8 +343,8 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     glBindTexture(GL_TEXTURE_2D, odata_texture_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 //     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, odata);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, odata_texture_handle, 0);

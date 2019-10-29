@@ -167,6 +167,12 @@ void apcButtonOn(int index, int color)
     midiOutShortMsg(hAPC40mk2, msg);
 }
 
+void nanokontrol2ButtonOn(int index, int color)
+{
+    DWORD msg = 0x9 << 4 | index << 8 | color << 16;
+    midiOutShortMsg(hnanoKONTROL2, msg);
+}
+
 void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     if(wMsg == MIM_DATA)
