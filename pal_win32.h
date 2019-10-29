@@ -21,6 +21,9 @@
 
 #include "common.h"
 
+#ifdef DEBUG
+#include "engine/debug.h"
+#endif 
 
 void *malloc(size_t size)
 {
@@ -82,6 +85,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else
 						waveOutRestart(hWaveOut);
 					break;
+#ifdef DEBUG
+                case VK_RETURN:
+                    showDebugWindow = !showDebugWindow;
+                    break;
+#endif
+                    
 			}
 			break;
 		case WM_RBUTTONDOWN:

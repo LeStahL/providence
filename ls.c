@@ -31,6 +31,10 @@ int _fltused = 0;
 
 #include "common.h"
 
+#ifdef DEBUG
+#include "engine/debug.h"
+#endif
+
 // Standard library and CRT rewrite for saving executable size
 void *memset(void *ptr, int value, size_t num)
 {
@@ -504,8 +508,10 @@ void draw()
 
     quad();
     
+#ifndef DEBUG
     // Render to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
     
     glUseProgram(shader_program_gfx_text.handle);
     glUniform2f(shader_uniform_gfx_text_iResolution, w, h);
@@ -516,14 +522,14 @@ void draw()
     glUniform1f(shader_uniform_gfx_text_iFSAA, fsaa);
     
 #ifdef MIDI
-    glUniform1f(shader_uniform_gfx_text_iFader0, fader0);
-    glUniform1f(shader_uniform_gfx_text_iFader1, fader1);
-    glUniform1f(shader_uniform_gfx_text_iFader2, fader2);
-    glUniform1f(shader_uniform_gfx_text_iFader3, fader3);
-    glUniform1f(shader_uniform_gfx_text_iFader4, fader4);
-    glUniform1f(shader_uniform_gfx_text_iFader5, fader5);
-    glUniform1f(shader_uniform_gfx_text_iFader6, fader6);
-    glUniform1f(shader_uniform_gfx_text_iFader7, fader7);
+    glUniform1f(shader_uniform_gfx_text_iFader0, faders[0]);
+    glUniform1f(shader_uniform_gfx_text_iFader1, faders[1]);
+    glUniform1f(shader_uniform_gfx_text_iFader2, faders[2]);
+    glUniform1f(shader_uniform_gfx_text_iFader3, faders[3]);
+    glUniform1f(shader_uniform_gfx_text_iFader4, faders[4]);
+    glUniform1f(shader_uniform_gfx_text_iFader5, faders[5]);
+    glUniform1f(shader_uniform_gfx_text_iFader6, faders[6]);
+    glUniform1f(shader_uniform_gfx_text_iFader7, faders[7]);
 #endif
     
     glActiveTexture(GL_TEXTURE0);
@@ -535,6 +541,49 @@ void draw()
 //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, font_texture_size, font_texture_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     
     quad();
+    
+#ifdef DEBUG
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+    glUseProgram(shader_program_gfx_debug.handle);
+    glUniform1i(shader_uniform_gfx_debug_iShowDebugInfo, showDebugWindow);
+    glUniform2f(shader_uniform_gfx_debug_iResolution, w, h);
+    glUniform1f(shader_uniform_gfx_debug_iFontWidth, font_texture_size);
+    glUniform1f(shader_uniform_gfx_debug_iTime, t);
+    glUniform1i(shader_uniform_gfx_debug_iChannel0, 0);
+    glUniform1i(shader_uniform_gfx_debug_iFont, 1);
+    
+#ifdef MIDI
+    glUniform1f(shader_uniform_gfx_debug_iFader0, faders[0]);
+    glUniform1f(shader_uniform_gfx_debug_iFader1, faders[1]);
+    glUniform1f(shader_uniform_gfx_debug_iFader2, faders[2]);
+    glUniform1f(shader_uniform_gfx_debug_iFader3, faders[3]);
+    glUniform1f(shader_uniform_gfx_debug_iFader4, faders[4]);
+    glUniform1f(shader_uniform_gfx_debug_iFader5, faders[5]);
+    glUniform1f(shader_uniform_gfx_debug_iFader6, faders[6]);
+    glUniform1f(shader_uniform_gfx_debug_iFader7, faders[7]);
+    
+    glUniform1f(shader_uniform_gfx_debug_iDial0, dials[0]);
+    glUniform1f(shader_uniform_gfx_debug_iDial1, dials[1]);
+    glUniform1f(shader_uniform_gfx_debug_iDial2, dials[2]);
+    glUniform1f(shader_uniform_gfx_debug_iDial3, dials[3]);
+    glUniform1f(shader_uniform_gfx_debug_iDial4, dials[4]);
+    glUniform1f(shader_uniform_gfx_debug_iDial5, dials[5]);
+    glUniform1f(shader_uniform_gfx_debug_iDial6, dials[6]);
+    glUniform1f(shader_uniform_gfx_debug_iDial7, dials[7]);
+#endif
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, first_pass_texture);
+//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, font_texture_handle);
+//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, font_texture_size, font_texture_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    
+    quad();
+#endif
+    
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

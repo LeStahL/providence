@@ -33,13 +33,14 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 find_package(Qt5 COMPONENTS Widgets)
 
-set(COMMON_HEADERS config_types.h config.h glext.h engine/platform.h engine/renderer.h engine/shader.h engine/loader.h engine/orchestrator.h)
+set(COMMON_HEADERS config_types.h config.h glext.h engine/platform.h engine/renderer.h engine/shader.h engine/loader.h engine/orchestrator.h engine/midi.h engine/debug.h)
 set(SFX_SHADER sfx.frag)
 set(SHADER_FILES
         gfx/load.frag
         gfx/logo210.frag
         gfx/text.frag
         gfx/post.frag
+        gfx/debug.frag
         gfx/forestmountains.frag
 )
 set(SHADER_SYMBOLS_PATH gfx/symbols/)

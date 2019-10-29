@@ -78,8 +78,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     float d;
 
-    vec4 old = c.yyyy, 
+    vec4 old = texture(iChannel0, fragCoord/iResolution), 
         new = c.yyyy;
+    
+    old = vec4(1., old.rgb);
     
     new = old;
     
@@ -87,8 +89,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     {
         // window
         vec3 c1 = new.gba;
-        addwindow(uv, c1, vec2(.72,.15));
-        new.gba = mix(new.gba, c1, sc);
+        addwindow(uv, new.gba, vec2(.72,.15));
+//         new.gba = mix(new.gba, c1, sc);
     }
     
 //     if(uv.y > .38) // Ui overlay with time counter and credits
