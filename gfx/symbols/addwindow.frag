@@ -18,7 +18,7 @@ void addwindow(in vec2 uv, inout vec3 col, in vec2 dimensions)
     // Background loading bar window
     dbox(uv, dimensions, d);
     vec3 gcol = length(col)/sqrt(3.)*c.xxx;
-    const vec3 window_raw = vec3(0.08,0.07,0.16);
+    const vec3 window_raw = .2*vec3(0.46,0.07,0.1);
     vec3 window_background = mix(mix(col,window_raw,.2), mix(gcol,window_raw,.8), clamp((.5-uv.y/dimensions.y*.5),0.,1.));
     
     // Shadow
