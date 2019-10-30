@@ -171,32 +171,7 @@ const char *buffersize_names[] =
     "1024x1024 px"
 };
 
-#ifdef MIDI
-HMIDIOUT hMidiOut;
-#endif
-
-int
-#ifdef MIDI
-    // MIDI controller values
-    fader_0_value,
-    fader_1_value,
-    fader_2_value,
-    fader_3_value,
-    fader_4_value,
-    fader_5_value,
-    fader_6_value,
-    fader_7_value,
-    
-    dial_0_value,
-    dial_1_value,
-    dial_2_value,
-    dial_3_value,
-    dial_4_value,
-    dial_5_value,
-    dial_6_value,
-    dial_7_value,
-#endif
-    
+int    
     // SFX
     sfx_program,
     sfx_handle,
@@ -214,10 +189,15 @@ int
     fsaa = 36,
     txaa = 1,
 
+#ifdef DEBUG
+    debug_output_texture_handle,
+    debug_texture_size,
+#endif
+    
 	// Text
 	font_texture_handle;
-    
-double mx, my;
+
+char debug_output[1024];
 
 // Demo globals
 double t

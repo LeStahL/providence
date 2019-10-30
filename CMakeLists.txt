@@ -42,6 +42,7 @@ set(SHADER_FILES
         gfx/post.frag
         gfx/debug.frag
         gfx/forestmountains.frag
+        gfx/forestinside.frag
 )
 set(SHADER_SYMBOLS_PATH gfx/symbols/)
 set(STRINGS_FILE font/strings.txt)

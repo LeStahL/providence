@@ -51,7 +51,7 @@ size_t strlen(const char *str)
 }
 
 #ifdef MIDI
-
+/*
 int btns = 1;
 void select_button(int index)
 {
@@ -70,7 +70,7 @@ void select_button(int index)
     DWORD out_msg = 0x9 << 4 | index << 8 | btns << 16;
     btns = 1+(btns+1)%125;
     midiOutShortMsg(hMidiOut, out_msg);
-}
+}*/
 /*
 #define NOTE_OFF 0x8
 #define NOTE_ON 0x9
@@ -388,6 +388,22 @@ void load_sound_block(int music_block)
 
     progress += .5/nblocks1;
 }
+
+#ifdef DEBUG
+
+void load_debug_output()
+{
+    // Initialize keyboard texture
+    glGenTextures(1, &debug_output_texture_handle);
+    glBindTexture(GL_TEXTURE_2D, debug_output_texture_handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, debug_texture_size, debug_texture_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, debug_output);
+}
+
+#endif
 
 #include "engine/shader.h"
 #include "shaders.gen.h"

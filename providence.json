@@ -5,6 +5,12 @@
             "prefix": "forestmountains",
             "t_end": 32,
             "t_start": 0
+        },
+        {
+            "name": "Forest Inside",
+            "prefix": "forestinside",
+            "t_end": 64,
+            "t_start": 32
         }
     ]
 }
