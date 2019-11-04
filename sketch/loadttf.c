@@ -14,44 +14,41 @@ int bigEndian()
 
 void reverseByteOrder(char *dst, size_t nbytes, char *src)
 {
-    for(int i=0; i<nbytes; ++i)
-        dst[i] = src[nbytes-1-i];
+    for(int i=0; i<nbytes; ++i) dst[i] = src[nbytes-1-i];
 }
 
-#define ACQUIRE(type, name)\
-    fread(bytes1, sizeof(char), sizeof(type), f);\
-    reverseByteOrder(bytes2, sizeof(type), bytes1);\
-    type name = *(type *)bytes2;
-
+#define EXTRACT(type, name, offset)\
+    if(!bigEndian()) reverseByteOrder(bytes, sizeof(type), fdata+offset);\
+    type name = *(type *)bytes;
+    
+char bytes[4];  
 int TTF2Texture(char *dst, const char *filename)
 {
     FILE *f = fopen(filename, "rb");
-    char bytes1[4], bytes2[4];
+    fseek(f, 0, SEEK_END);
+    size_t fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char *fdata = (char*)malloc(fsize+1);
+    fread(fdata, 1, fsize, f);
+    fclose(f);
     
-    if(!bigEndian())
+    // Check if spline outlines are saved in ttf file.
+    EXTRACT(uint32_t, sfntVersion, 0);
+    if(sfntVersion != 0x00010000) return -1;
+    
+    EXTRACT(uint16_t, numTables, 4);
+    for(int i=0; i<(int)numTables; ++i)
     {
-        ACQUIRE(uint32_t, sfntVersion);
-        if(sfntVersion != 0x00010000) return -1;
+        EXTRACT(uint32_t, tableTagInt, 12 + 16 * i);
+        char tableTag[5];
+        for(int j=0; j<4; ++j) tableTag[j] = bytes[4-j];
+        tableTag[4] = 0;
         
-        ACQUIRE(uint16_t, numTables);
+        EXTRACT(uint32_t, checkSum, 12 + 16 * i + 4);
+        EXTRACT(uint32_t, offset, 12 + 16 * i + 8);
+        EXTRACT(uint32_t, length, 12 + 16 * i + 12);
         
-        fseek(f, 12, SEEK_SET);
-        for(int i=0; i<(int)numTables; ++i)
-        {
-            ACQUIRE(uint32_t, tableTagInt);
-            char tableTag[5];
-            for(int j=0; j<4; ++j) tableTag[j] = bytes2[j];
-            tableTag[4] = 0;
-            
-            ACQUIRE(uint32_t, checkSum);
-            ACQUIRE(uint32_t, offset);
-            ACQUIRE(uint32_t, length);
-            
-            printf("Table %d: %s with checksum %d, offset %d and length %d\n", i, tableTag, checkSum, offset, length);
-        }
-    }
-    else 
-    {
+        printf("Table %d: %s with checksum %d, offset %d and length %d\n", i, tableTag, checkSum, offset, length);
     }
     
     return 0;
