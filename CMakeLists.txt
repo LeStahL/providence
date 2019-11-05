@@ -137,3 +137,11 @@ add_dependencies(studio texture_packing)
 
 target_link_libraries(studio Qt5::Widgets)
 target_link_libraries(studio OpenGL::GL)
+
+if(WIN32)
+    get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt.exe HINTS "${_qt_bin_dir}")
+    message("Found windeployqt executable: ${WINDEPLOYQT_EXECUTABLE}")
+    message("Binary is in: $<TARGET_FILE_DIR:studio>")
+    add_custom_command(TARGET studio COMMAND ${WINDEPLOYQT_EXECUTABLE} "$<TARGET_FILE:studio>")
+endif()
