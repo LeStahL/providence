@@ -47,7 +47,7 @@ void dvoronoi3(in vec3 x, out float d, out vec3 p, out float control_distance)
     for(float i = -2.; i <= 2.; i += 1.)
         for(float j = -2.; j <= 2.; j += 1.)
         {
-            for(float k = -1.; k <= 1.; k += 1.)
+            for(float k = -2.; k <= 2.; k += 1.)
             {
                 if(i==0. && j==0. && k == 0.) continue;
                 hash33(y+vec3(i,j,k), dp);
