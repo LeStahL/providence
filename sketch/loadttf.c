@@ -47,27 +47,52 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
     fread(fdata, 1, fsize, f);
     fclose(f);
     
-    EXTRACT_REVERSED(uint32_t, sfntVersion, 0);
-    if(sfntVersion != 0x00010000) return -1;
+//     EXTRACT_REVERSED(uint32_t, sfntVersion, 0);
+//     if(sfntVersion != 0x00010000) return -1;
     
-    uint32_t maxpOffset, glyfOffset, headOffset, locaOffset;
+    uint32_t maxpOffset, glyfOffset, headOffset, locaOffset, cmapOffset;
     
     EXTRACT_REVERSED(uint16_t, numTables, 4);
     for(int i=0; i<(int)numTables; ++i)
     {
-        EXTRACT_REVERSED(uint32_t, tableTagInt, 12 + 16 * i);        
         EXTRACT_REVERSED(uint32_t, checkSum, 12 + 16 * i + 4);
         EXTRACT_REVERSED(uint32_t, offset, 12 + 16 * i + 8);
         EXTRACT_REVERSED(uint32_t, length, 12 + 16 * i + 12);
+        EXTRACT_REVERSED(uint32_t, tableTagInt, 12 + 16 * i);        
 
+//         printf("%4s %x\n", bytes, tableTagInt);
+        
         if(tableTagInt == 0x6d617870) maxpOffset = offset;
         else if(tableTagInt == 0x676c7966) glyfOffset = offset;
         else if(tableTagInt == 0x68656164) headOffset = offset;
         else if(tableTagInt == 0x6c6f6361) locaOffset = offset;
+        else if(tableTagInt == 0x636d6170) cmapOffset = offset;
     }
     
     EXTRACT_REVERSED(uint16_t, numGlyphs, maxpOffset + 4);
 //     printf("Number of glyphs saved in font: %d\n", (int)numGlyphs);
+    
+    EXTRACT_REVERSED(uint16_t, numEncodingTables, cmapOffset + 2);
+    uint32_t windowsUnicodeOffset;
+    for(int i=0; i<numEncodingTables; ++i)
+    {
+        EXTRACT_REVERSED(uint16_t, platformID, cmapOffset + 4 + 8 * i);
+        EXTRACT_REVERSED(uint16_t, encodingID, cmapOffset + 4 + 8 * i + 2);
+        
+        EXTRACT_REVERSED(uint32_t, encodingOffset, cmapOffset + 4 + 8 * i + 4);
+        if(platformID == 3 && encodingID == 1) windowsUnicodeOffset = encodingOffset;
+        
+//         printf("PLAT %d ENC %d\n", platformID, encodingID);
+    }
+    
+    char asciiIndices[128];
+    for(int i=0; i<128; ++i) 
+    {
+        EXTRACT(uint8_t, index, windowsUnicodeOffset + i);
+        asciiIndices[i] = index;
+        printf("%c is at index: %d\n", (char)i, (int)index);
+    }
+//     printf("Unicode offset is at: %d\n", windows
     
     EXTRACT_REVERSED(int16_t, indexToLocFormat, headOffset + 50);
     if(indexToLocFormat) // Only parse uint32_t based tables
@@ -81,10 +106,10 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
 //             printf("Number of contours in glyph: %d\n", (int)numberOfContours);
             
             //BEGIN FIXME: remove, unnecessary
-            EXTRACT_REVERSED(int16_t, xMin, glyfOffset + glyphOffset + 2);
-            EXTRACT_REVERSED(int16_t, yMin, glyfOffset + glyphOffset + 4);
-            EXTRACT_REVERSED(int16_t, xMax, glyfOffset + glyphOffset + 6);
-            EXTRACT_REVERSED(int16_t, yMax, glyfOffset + glyphOffset + 8);
+//             EXTRACT_REVERSED(int16_t, xMin, glyfOffset + glyphOffset + 2);
+//             EXTRACT_REVERSED(int16_t, yMin, glyfOffset + glyphOffset + 4);
+//             EXTRACT_REVERSED(int16_t, xMax, glyfOffset + glyphOffset + 6);
+//             EXTRACT_REVERSED(int16_t, yMax, glyfOffset + glyphOffset + 8);
 //             printf("Bounding box: (%d,%d), (%d,%d)\n", xMin, yMin, xMax, yMax);
             //END FIXME
             
@@ -103,7 +128,7 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
                 // Extract number of flags and data from contour end point array
                 EXTRACT_REVERSED(uint16_t, numberOfPoints, glyfOffset + glyphOffset + 10 + 2 * (numberOfContours-1));
                 numberOfPoints += 1;
-                printf("Number of contained points: %d\n", numberOfPoints);
+//                 printf("Number of contained points: %d\n", numberOfPoints);
                 
                 // Extract size of data from weird compressed format
                 uint8_t size = 0, 
@@ -111,15 +136,15 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
                 for( ; size < numberOfPoints; ++compressedSize)
                 {
                     EXTRACT(uint8_t, flag, glyfOffset + glyphOffset + 10 + 2*numberOfContours + compressedSize);
-                    printBits(flag,8);
+//                     printBits(flag,8);
                     int8_t repeat = bit(flag, 3);
                     if(repeat)
                     {
-                        printf(" r ");
+//                         printf(" r ");
                         EXTRACT(uint8_t, nRepetitions, glyfOffset + glyphOffset + 10 + 2*numberOfContours + compressedSize + 1);
-                        printBits(nRepetitions, 8);
+//                         printBits(nRepetitions, 8);
                         ++compressedSize;
-                        printf(" ");
+//                         printf(" ");
                         printf("Repetition of size: %d\n", nRepetitions);
                         size += nRepetitions;
                     }
@@ -128,9 +153,13 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
                         size += 1;
                     }
                     
-                    printf("\n");
+//                     printf("\n");
                 }
                 printf("actual size: %d, compressed size: %d\n", size, compressedSize);
+                
+                
+                
+                
                 
 //                 if(instructionLength == 0)
 //                     printf("----------> nice, no instructions\n");
