@@ -17,7 +17,7 @@ void reverseByteOrder(char *dst, size_t nbytes, char *src)
     for(int i=0; i<nbytes; ++i) dst[i] = src[nbytes-1-i];
 }
 
-int bit(char data, int index)
+uint8_t bit(uint32_t data, size_t index)
 {
     return (data >> index) & 0x1;
 }
@@ -27,7 +27,7 @@ int bit(char data, int index)
     type name = *(type *)bytes;\
     
 char bytes[4];  
-int TTF2Texture(char *dst, const char *filename)
+int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
 {
     FILE *f = fopen(filename, "rb");
     fseek(f, 0, SEEK_END);
@@ -57,7 +57,7 @@ int TTF2Texture(char *dst, const char *filename)
     }
     
     EXTRACT(uint16_t, numGlyphs, maxpOffset + 4);
-    printf("Number of glyphs saved in font: %d\n", (int)numGlyphs);
+//     printf("Number of glyphs saved in font: %d\n", (int)numGlyphs);
     
     EXTRACT(int16_t, indexToLocFormat, headOffset + 50);
     if(indexToLocFormat) // Only parse uint32_t based tables
@@ -68,39 +68,73 @@ int TTF2Texture(char *dst, const char *filename)
             printf(">> Glyph offset of %d (%c) is %d\n", (int)i, (char)i, (int)glyphOffset);
             
             EXTRACT(int16_t, numberOfContours, glyfOffset + glyphOffset);
-            printf("Number of contours in glyph: %d\n", (int)numberOfContours);
+//             printf("Number of contours in glyph: %d\n", (int)numberOfContours);
             
             //BEGIN FIXME: remove, unnecessary
             EXTRACT(int16_t, xMin, glyfOffset + glyphOffset + 2);
             EXTRACT(int16_t, yMin, glyfOffset + glyphOffset + 4);
             EXTRACT(int16_t, xMax, glyfOffset + glyphOffset + 6);
             EXTRACT(int16_t, yMax, glyfOffset + glyphOffset + 8);
-            printf("Bounding box: (%d,%d), (%d,%d)\n", xMin, yMin, xMax, yMax);
+//             printf("Bounding box: (%d,%d), (%d,%d)\n", xMin, yMin, xMax, yMax);
             //END FIXME
             
             printf("---\n");
-            if(glyfOffset >= 0)
+            if(numberOfContours >= 0) // Glyph is not composite
             {
                 for(int j=0; j<numberOfContours; ++j)
                 {
                     EXTRACT(uint16_t, endPointOfContours, glyfOffset + glyphOffset + 10 + 2 * j);
-                    printf("end point: %d\n", endPointOfContours);
+//                     printf("end point: %d\n", endPointOfContours);
                 }
                 
-                EXTRACT(uint16_t, instructionLength, glyfOffset + glyphOffset + 10 + 2*numberOfContours);
-                printf("Number of instrutions: %d\n", (int)instructionLength);
+//                 EXTRACT(uint16_t, instructionLength, glyfOffset + glyphOffset + 10 + 2*numberOfContours);
+//                 printf("Number of instrutions: %d\n", (int)instructionLength);
                 
-                int nPointsX = 0, nPointsY = 0;
-                for(int j=0; j<instructionLength; ++j)
+                // Extract number of flags and data from contour end point array
+                EXTRACT(uint16_t, numberOfPoints, glyfOffset + glyphOffset + 10 + 2 * (numberOfContours-1));
+                numberOfPoints += 1;
+                printf("Number of contained points: %d\n", numberOfPoints);
+                
+                // Extract size of data from weird compressed format
+                uint8_t size = 0, 
+                    compressedSize = 0;
+                for( ; size < numberOfPoints; ++compressedSize)
                 {
-                    EXTRACT(uint8_t, instruction, glyfOffset + glyphOffset + 10 + 2*numberOfContours + j);
+                    EXTRACT(uint8_t, flag, glyfOffset + glyphOffset + 10 + 2*numberOfContours + compressedSize);
                     
-                    int onCurve = bit(instruction, 0);
-                    size_t xWidth = bit(instruction, 1) + 1, 
-                        yWidth = bit(instruction, 2) + 1;
-                        
+                    int8_t repeat = bit(flag, 3);
+                    if(repeat)
+                    {
+                        EXTRACT(uint8_t, nRepetitions, glyfOffset + glyphOffset + 10 + 2*numberOfContours + compressedSize + 1);
+                        printf("Repetition of size: %d\n", nRepetitions);
+                        size += nRepetitions;
+                    }
+                    else size += 1;
+                    
                     
                 }
+                printf("actual size: %d, compressed size: %d\n", size, compressedSize);
+                
+//                 if(instructionLength == 0)
+//                     printf("----------> nice, no instructions\n");
+//                 int nPointsX = 0, nPointsY = 0;
+//                 for(int j=0; j<instructionLength; ++j)
+//                 {
+//                     EXTRACT(uint8_t, instruction, glyfOffset + glyphOffset + 10 + 2*numberOfContours + j);
+//                     
+//                     int onCurve = (int)bit((uint32_t)instruction, 0);
+//                     size_t xWidth = (size_t)bit((uint32_t)instruction, 1) + 1, 
+//                         yWidth = (size_t)bit((uint32_t)instruction, 2) + 1;
+//                     int repeat = (int)bit((uint32_t)instruction, 3);
+//                     if((int)repeat) 
+//                     {
+//                         for(int k=0; k<8; ++k) printf("%d", bit(instruction,k));
+//                         printf("\n");
+//                         EXTRACT(uint8_t, nRepetitions, glyfOffset + glyphOffset + 10 + 2*numberOfContours + j + 1);
+//                         ++j;
+//                         printf("repeat %d times.\n", (int)nRepetitions);
+//                     }
+//                 }
             }
             printf("\n");
         }
@@ -113,12 +147,15 @@ int TTF2Texture(char *dst, const char *filename)
 int main(int argc, char **args)
 {
     char *texture;
-//     TTF2Texture(texture, "C:\\Windows\\Fonts\\arial.ttf");
-    TTF2Texture(texture, "C:\\Users\\NR4\\Downloads\\Princess_Sofia\\PrincessSofia-Regular.ttf");
+    uint16_t *x = 0, *y = 0;
+    uint8_t *flags;
     
-//     for(int i=0; i<256; ++i)
+    TTF2Texture(x, y, flags, "C:\\Windows\\Fonts\\arial.ttf");
+//     TTF2Texture(texture, "C:\\Users\\NR4\\Downloads\\Princess_Sofia\\PrincessSofia-Regular.ttf");
+    
+//     for(int i=0; i<256; i += 1)
 //     {
-//         for(int j=0; j<8; ++j) printf("%d", bit(i,j));
+//         for(int j=0; j<8; ++j) printf("%d", bit((uint8_t)i,j));
 //         printf("\n");
 //     }
     
