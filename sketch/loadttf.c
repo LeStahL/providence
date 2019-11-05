@@ -17,6 +17,11 @@ void reverseByteOrder(char *dst, size_t nbytes, char *src)
     for(int i=0; i<nbytes; ++i) dst[i] = src[nbytes-1-i];
 }
 
+int bit(char data, int index)
+{
+    return (data >> index) & 0x1;
+}
+
 #define EXTRACT(type, name, offset)\
     if(!bigEndian()) reverseByteOrder(bytes, sizeof(type), fdata+offset);\
     type name = *(type *)bytes;\
@@ -81,6 +86,21 @@ int TTF2Texture(char *dst, const char *filename)
                     EXTRACT(uint16_t, endPointOfContours, glyfOffset + glyphOffset + 10 + 2 * j);
                     printf("end point: %d\n", endPointOfContours);
                 }
+                
+                EXTRACT(uint16_t, instructionLength, glyfOffset + glyphOffset + 10 + 2*numberOfContours);
+                printf("Number of instrutions: %d\n", (int)instructionLength);
+                
+                int nPointsX = 0, nPointsY = 0;
+                for(int j=0; j<instructionLength; ++j)
+                {
+                    EXTRACT(uint8_t, instruction, glyfOffset + glyphOffset + 10 + 2*numberOfContours + j);
+                    
+                    int onCurve = bit(instruction, 0);
+                    size_t xWidth = bit(instruction, 1) + 1, 
+                        yWidth = bit(instruction, 2) + 1;
+                        
+                    
+                }
             }
             printf("\n");
         }
@@ -93,8 +113,15 @@ int TTF2Texture(char *dst, const char *filename)
 int main(int argc, char **args)
 {
     char *texture;
-    TTF2Texture(texture, "C:\\Windows\\Fonts\\arial.ttf");
-//     TTF2Texture(texture, "C:\\Users\\NR4\\Downloads\\Princess_Sofia\\PrincessSofia-Regular.ttf");
+//     TTF2Texture(texture, "C:\\Windows\\Fonts\\arial.ttf");
+    TTF2Texture(texture, "C:\\Users\\NR4\\Downloads\\Princess_Sofia\\PrincessSofia-Regular.ttf");
+    
+//     for(int i=0; i<256; ++i)
+//     {
+//         for(int j=0; j<8; ++j) printf("%d", bit(i,j));
+//         printf("\n");
+//     }
+    
     
     return 0;
 }
