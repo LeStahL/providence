@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "demoapi.h"
 
-
 static const double TimeNowSliderFactor = 1000.;
 
 MainWindow::MainWindow()

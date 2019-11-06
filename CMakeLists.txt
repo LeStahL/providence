@@ -128,7 +128,11 @@ add_executable(studio
     studio/mainwindow.ui
     studio/demoapi.cpp
     studio/renderviewwidget.cpp
+    
     ${COMMON_HEADERS}
+    
+    studio/nanokontrol2.ui
+    studio/nanokontrol2Widget.cpp
 )
 
 add_dependencies(studio minify_sfx)
