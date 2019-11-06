@@ -184,28 +184,132 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QDial" name="dial"/>
+        <widget class="QDial" name="dial_1">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_2"/>
+        <widget class="QDial" name="dial_2">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_3"/>
+        <widget class="QDial" name="dial_3">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_4"/>
+        <widget class="QDial" name="dial_4">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_5"/>
+        <widget class="QDial" name="dial_5">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_6"/>
+        <widget class="QDial" name="dial_6">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_7"/>
+        <widget class="QDial" name="dial_7">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDial" name="dial_8"/>
+        <widget class="QDial" name="dial_8">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="notchTarget">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="notchesVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -240,9 +344,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QSlider" name="verticalSlider">
+        <widget class="QSlider" name="verticalSlider_1">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -276,8 +389,17 @@
        </item>
        <item>
         <widget class="QSlider" name="verticalSlider_2">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -311,8 +433,17 @@
        </item>
        <item>
         <widget class="QSlider" name="verticalSlider_3">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -346,8 +477,17 @@
        </item>
        <item>
         <widget class="QSlider" name="verticalSlider_4">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -380,9 +520,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QSlider" name="verticalSlider_8">
+        <widget class="QSlider" name="verticalSlider_5">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -415,9 +564,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QSlider" name="verticalSlider_7">
+        <widget class="QSlider" name="verticalSlider_6">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -450,9 +608,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QSlider" name="verticalSlider_5">
+        <widget class="QSlider" name="verticalSlider_7">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -485,9 +652,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QSlider" name="verticalSlider_6">
+        <widget class="QSlider" name="verticalSlider_8">
+         <property name="maximum">
+          <number>1000</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>20</number>
          </property>
         </widget>
        </item>

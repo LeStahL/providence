@@ -12,7 +12,7 @@ MainWindow::MainWindow()
 
     connect(window.timeNowSlider, &QSlider::valueChanged, this, &MainWindow::onChangeTimeNowSlider);
     connect(window.timeNowSpinBox,static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onChangeTimeNowSpinBox);
-
+    
     show();
 }
 

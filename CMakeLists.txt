@@ -143,6 +143,8 @@ target_link_libraries(studio Qt5::Widgets)
 target_link_libraries(studio OpenGL::GL)
 
 if(WIN32)
+    target_link_libraries(studio Winmm.lib)
+
     get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
     find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt.exe HINTS "${_qt_bin_dir}")
     message("Found windeployqt executable: ${WINDEPLOYQT_EXECUTABLE}")

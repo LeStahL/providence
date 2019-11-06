@@ -1,10 +1,11 @@
 #ifndef MIDI_H
 #define MIDI_H
 
-#include "common.h"
-
 #include <Windows.h>
 #include <math.h>
+
+#define max(a,b) (a)>(b)?(a):(b)
+#define min(a,b) (a)<(b)?(a):(b)
 
 UINT nDevices, nOutputDevices;
 HMIDIOUT hAPC40mk2, hnanoKONTROL2;
@@ -192,14 +193,19 @@ void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
         printf("Akai APC40 mkII: wMsg=MIM_DATA, dwParam1=%08x, byte=%02x %02x h_%01x l_%01x %02x, dwParam2=%08x\n", dwParam1, b1, b2, b3hi, b3lo, b4, dwParam2);
         
         if(b4 == 0xb0 && b3hi == 0x3) // Dial
+        {
             dials[b3lo] = (double)b2/(double)0x7f;
+        }
         else if(b4hi == 0xb && b3 == 0x07)
+        {
             faders[b4lo] = (double)b2/(double)0x7f;
+        }
     }
     
 	return;
 }
 
+void (*fader_notifier)(int, double) = 0, (*dial_notifier)(int, double) = 0;
 void CALLBACK MidiInProc_nanoKONTROL2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     if(wMsg == MIM_DATA)
@@ -221,13 +227,38 @@ void CALLBACK MidiInProc_nanoKONTROL2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstan
         if(b4 == 0xb0) // Fader or dial
         {
             if(b3hi == 0) // Fader
+            {
                 faders[b3lo] = (double)b2/(double)0x7f;
+                if(fader_notifier != 0) (*fader_notifier)(b3lo, faders[b3lo]);
+            }
             else if(b3hi == 1) // Dial
+            {
                 dials[b3lo] = (double)b2/(double)0x7f;
+                if(dial_notifier != 0) (*dial_notifier)(b3lo, dials[b3lo]);
+            }
         }
     }
     
 	return;
+}
+
+void initKorgNanoKontrol2Input(void *callback)
+{
+    // Number of devices
+    nDevices = midiInGetNumDevs();
+    if(nDevices == 0) return;
+    
+    // Inputs
+    MIDIINCAPS capabilities;
+    for(int i=0; i<nDevices; ++i)
+    {
+        midiInGetDevCaps(i, &capabilities, sizeof(MIDIINCAPS));
+        
+        HMIDIIN hMidiDevice;
+        if(!strcmp(capabilities.szPname, "nanoKONTROL2"))
+            midiInOpen(&hMidiDevice, i, (DWORD_PTR)callback, 0, CALLBACK_FUNCTION);
+        midiInStart(hMidiDevice);
+    }
 }
 
 void initControllers()
