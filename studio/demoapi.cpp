@@ -46,7 +46,7 @@ void DemoApi::resizeView(int w, int h)
 void DemoApi::setTimeNow(double now)
 {
     t_now = now;
-    progress = now;
+//     progress = now;
 }
 
 double DemoApi::getTimeNow() const
