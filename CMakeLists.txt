@@ -133,6 +133,9 @@ add_executable(studio
     
     studio/nanokontrol2.ui
     studio/nanokontrol2Widget.cpp
+    
+    studio/apc40mk2widget.ui
+    studio/apc40mk2widget.cpp
 )
 
 add_dependencies(studio minify_sfx)

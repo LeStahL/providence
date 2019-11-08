@@ -1,37 +1,41 @@
-#include "nanokontrol2Widget.h"
+#include "apc40mk2widget.h"
 
-nanoKontrol2Widget *instance;
+apc40Mk2Widget *apc40_instance;
 
 #ifdef WIN32
 #define STUDIO
-#include "engine/midi.h"
+extern "C"
+{
+    #include "engine/midi.h"
+}
 #endif
 
 #include <QDebug>
 
-nanoKontrol2Widget::nanoKontrol2Widget(QWidget* parent)
+apc40Mk2Widget::apc40Mk2Widget(QWidget* parent)
 {
     m_ui.setupUi(this);
     
 #ifdef WIN32
-    nanokontrol2_fader_notifier = &instance->setFader;
-    nanokontrol2_dial_notifier = &instance->setDial;
-    initKorgNanoKontrol2Input((void*)&MidiInProc_nanoKONTROL2);
+    apc40mk2_fader_notifier = &apc40_instance->setFader;
+    apc40mk2_dial_top_notifier = &apc40_instance->setDial;
+//     apc40mk2_dial_right_notifier = &apc40_instance->set
+    initApc40Mk2Input((void*)&MidiInProc_apc40mk2);
 #endif
     
-    instance = this;
+    apc40_instance = this;
 }
 
-nanoKontrol2Widget::~nanoKontrol2Widget()
+apc40Mk2Widget::~apc40Mk2Widget()
 {
 }
 
-void nanoKontrol2Widget::setFader(int index, double value)
+void apc40Mk2Widget::setFader(int index, double value)
 {
-    emit instance->faderChanged(index, value);
+    emit apc40_instance->faderChanged(index, value);
 }
 
-void nanoKontrol2Widget::faderChanged(int index, double value)
+void apc40Mk2Widget::faderChanged(int index, double value)
 {
     if(index == 0) m_ui.verticalSlider_1->setValue((int)(value*1000.));
     else if(index == 1) m_ui.verticalSlider_2->setValue((int)(value*1000.));
@@ -45,12 +49,12 @@ void nanoKontrol2Widget::faderChanged(int index, double value)
     m_ui.horizontalLayout_2->update();
 }
 
-void nanoKontrol2Widget::setDial(int index, double value)
+void apc40Mk2Widget::setDial(int index, double value)
 {
-    emit instance->dialChanged(index, value);
+    emit apc40_instance->dialChanged(index, value);
 }
 
-void nanoKontrol2Widget::dialChanged(int index, double value)
+void apc40Mk2Widget::dialChanged(int index, double value)
 {
     if(index == 0) m_ui.dial_1->setValue((int)(value*1000.));
     else if(index == 1) m_ui.dial_2->setValue((int)(value*1000.));

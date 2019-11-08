@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>apc40Mk2Widget</class>
+ <widget class="QWidget" name="apc40Mk2Widget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,6 +13,30 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget
+{
+    color: #f1eff0;
+    background-color: #3b3136;
+    selection-background-color:#e93dae;
+    selection-color: #f1eff0;
+    background-clip: border;
+    border-image: none;
+    border: 0px transparent black;
+    outline: 0;
+}
+QWidget:item:hover
+{
+    background-color: #e93dae;
+    color: #f1eff0;
+}
+
+QWidget:item:selected
+{
+    background-color: #e93dae;
+}
+</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -21,7 +45,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QDial" name="dial">
+          <widget class="QDial" name="dial_1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>
@@ -33,6 +57,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -53,6 +83,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -71,6 +107,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -91,6 +133,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -109,6 +157,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -129,6 +183,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -148,6 +208,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -166,6 +232,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -701,15 +773,24 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QSlider" name="verticalSlider">
+          <widget class="QSlider" name="verticalSlider_1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -721,8 +802,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -734,8 +824,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -747,8 +846,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -760,8 +868,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -773,8 +890,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -786,8 +912,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -799,8 +934,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -846,6 +990,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -864,6 +1014,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -884,6 +1040,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -902,6 +1064,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -926,6 +1094,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -944,6 +1118,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -964,6 +1144,12 @@
              <height>50</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
+           </property>
            <property name="notchesVisible">
             <bool>true</bool>
            </property>
@@ -982,6 +1168,12 @@
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="notchTarget">
+            <double>50.000000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>

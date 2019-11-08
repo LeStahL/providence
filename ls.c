@@ -538,14 +538,14 @@ void draw()
     glUniform1f(shader_uniform_gfx_text_iFSAA, fsaa);
     
 #ifdef MIDI
-    glUniform1f(shader_uniform_gfx_text_iFader0, faders[0]);
-    glUniform1f(shader_uniform_gfx_text_iFader1, faders[1]);
-    glUniform1f(shader_uniform_gfx_text_iFader2, faders[2]);
-    glUniform1f(shader_uniform_gfx_text_iFader3, faders[3]);
-    glUniform1f(shader_uniform_gfx_text_iFader4, faders[4]);
-    glUniform1f(shader_uniform_gfx_text_iFader5, faders[5]);
-    glUniform1f(shader_uniform_gfx_text_iFader6, faders[6]);
-    glUniform1f(shader_uniform_gfx_text_iFader7, faders[7]);
+//     glUniform1f(shader_uniform_gfx_text_iFader0, faders[0]);
+//     glUniform1f(shader_uniform_gfx_text_iFader1, faders[1]);
+//     glUniform1f(shader_uniform_gfx_text_iFader2, faders[2]);
+//     glUniform1f(shader_uniform_gfx_text_iFader3, faders[3]);
+//     glUniform1f(shader_uniform_gfx_text_iFader4, faders[4]);
+//     glUniform1f(shader_uniform_gfx_text_iFader5, faders[5]);
+//     glUniform1f(shader_uniform_gfx_text_iFader6, faders[6]);
+//     glUniform1f(shader_uniform_gfx_text_iFader7, faders[7]);
 #endif
     
     glActiveTexture(GL_TEXTURE0);
@@ -570,23 +570,23 @@ void draw()
     glUniform1i(shader_uniform_gfx_debug_iFont, 1);
     
 #ifdef MIDI
-    glUniform1f(shader_uniform_gfx_debug_iFader0, faders[0]);
-    glUniform1f(shader_uniform_gfx_debug_iFader1, faders[1]);
-    glUniform1f(shader_uniform_gfx_debug_iFader2, faders[2]);
-    glUniform1f(shader_uniform_gfx_debug_iFader3, faders[3]);
-    glUniform1f(shader_uniform_gfx_debug_iFader4, faders[4]);
-    glUniform1f(shader_uniform_gfx_debug_iFader5, faders[5]);
-    glUniform1f(shader_uniform_gfx_debug_iFader6, faders[6]);
-    glUniform1f(shader_uniform_gfx_debug_iFader7, faders[7]);
-    
-    glUniform1f(shader_uniform_gfx_debug_iDial0, dials[0]);
-    glUniform1f(shader_uniform_gfx_debug_iDial1, dials[1]);
-    glUniform1f(shader_uniform_gfx_debug_iDial2, dials[2]);
-    glUniform1f(shader_uniform_gfx_debug_iDial3, dials[3]);
-    glUniform1f(shader_uniform_gfx_debug_iDial4, dials[4]);
-    glUniform1f(shader_uniform_gfx_debug_iDial5, dials[5]);
-    glUniform1f(shader_uniform_gfx_debug_iDial6, dials[6]);
-    glUniform1f(shader_uniform_gfx_debug_iDial7, dials[7]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader0, faders[0]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader1, faders[1]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader2, faders[2]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader3, faders[3]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader4, faders[4]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader5, faders[5]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader6, faders[6]);
+//     glUniform1f(shader_uniform_gfx_debug_iFader7, faders[7]);
+//     
+//     glUniform1f(shader_uniform_gfx_debug_iDial0, dials[0]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial1, dials[1]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial2, dials[2]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial3, dials[3]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial4, dials[4]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial5, dials[5]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial6, dials[6]);
+//     glUniform1f(shader_uniform_gfx_debug_iDial7, dials[7]);
 #endif
     
     glActiveTexture(GL_TEXTURE0);

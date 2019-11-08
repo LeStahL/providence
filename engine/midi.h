@@ -9,7 +9,11 @@
 
 UINT nDevices, nOutputDevices;
 HMIDIOUT hAPC40mk2, hnanoKONTROL2;
-double faders[8], dials[8];
+double nanokontrol2_faders[8], 
+    nanokontrol2_dials[8], 
+    apc40mk2_faders[8],
+    apc40mk2_top_dials[8],
+    apc40mk2_right_dials[8];
 
 const double apcColors[] = {
     0.00,0.00,0.00,
@@ -174,6 +178,9 @@ void nanokontrol2ButtonOn(int index, int color)
     midiOutShortMsg(hnanoKONTROL2, msg);
 }
 
+void (*apc40mk2_fader_notifier)(int, double) = 0, 
+    (*apc40mk2_dial_top_notifier)(int, double) = 0,
+    (*apc40mk2_dial_right_notifier)(int, double) = 0;
 void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     if(wMsg == MIM_DATA)
@@ -194,18 +201,21 @@ void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
         
         if(b4 == 0xb0 && b3hi == 0x3) // Dial
         {
-            dials[b3lo] = (double)b2/(double)0x7f;
+            apc40mk2_top_dials[b3lo] = (double)b2/(double)0x7f;
+            if(apc40mk2_dial_top_notifier != 0) (*apc40mk2_dial_top_notifier)(b3lo, apc40mk2_top_dials[b3lo]);
         }
         else if(b4hi == 0xb && b3 == 0x07)
         {
-            faders[b4lo] = (double)b2/(double)0x7f;
+            apc40mk2_faders[b4lo] = (double)b2/(double)0x7f;
+            if(apc40mk2_fader_notifier != 0) (*apc40mk2_fader_notifier)(b4lo, apc40mk2_faders[b4lo]);
+//             printf("%d\n", b3lo
         }
     }
     
 	return;
 }
 
-void (*fader_notifier)(int, double) = 0, (*dial_notifier)(int, double) = 0;
+void (*nanokontrol2_fader_notifier)(int, double) = 0, (*nanokontrol2_dial_notifier)(int, double) = 0;
 void CALLBACK MidiInProc_nanoKONTROL2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     if(wMsg == MIM_DATA)
@@ -228,13 +238,13 @@ void CALLBACK MidiInProc_nanoKONTROL2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstan
         {
             if(b3hi == 0) // Fader
             {
-                faders[b3lo] = (double)b2/(double)0x7f;
-                if(fader_notifier != 0) (*fader_notifier)(b3lo, faders[b3lo]);
+                nanokontrol2_faders[b3lo] = (double)b2/(double)0x7f;
+                if(nanokontrol2_fader_notifier != 0) (*nanokontrol2_fader_notifier)(b3lo, nanokontrol2_faders[b3lo]);
             }
             else if(b3hi == 1) // Dial
             {
-                dials[b3lo] = (double)b2/(double)0x7f;
-                if(dial_notifier != 0) (*dial_notifier)(b3lo, dials[b3lo]);
+                nanokontrol2_dials[b3lo] = (double)b2/(double)0x7f;
+                if(nanokontrol2_dial_notifier != 0) (*nanokontrol2_dial_notifier)(b3lo, nanokontrol2_dials[b3lo]);
             }
         }
     }
@@ -256,6 +266,25 @@ void initKorgNanoKontrol2Input(void *callback)
         
         HMIDIIN hMidiDevice;
         if(!strcmp(capabilities.szPname, "nanoKONTROL2"))
+            midiInOpen(&hMidiDevice, i, (DWORD_PTR)callback, 0, CALLBACK_FUNCTION);
+        midiInStart(hMidiDevice);
+    }
+}
+
+void initApc40Mk2Input(void *callback)
+{
+    // Number of devices
+    nDevices = midiInGetNumDevs();
+    if(nDevices == 0) return;
+    
+    // Inputs
+    MIDIINCAPS capabilities;
+    for(int i=0; i<nDevices; ++i)
+    {
+        midiInGetDevCaps(i, &capabilities, sizeof(MIDIINCAPS));
+        
+        HMIDIIN hMidiDevice;
+        if(!strcmp(capabilities.szPname, "APC40 mkII"))
             midiInOpen(&hMidiDevice, i, (DWORD_PTR)callback, 0, CALLBACK_FUNCTION);
         midiInStart(hMidiDevice);
     }
