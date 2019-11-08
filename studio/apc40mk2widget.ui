@@ -1002,7 +1002,7 @@ QWidget:item:selected
           </widget>
          </item>
          <item>
-          <widget class="QDial" name="dial_12">
+          <widget class="QDial" name="dial_10">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>
@@ -1052,7 +1052,7 @@ QWidget:item:selected
           </widget>
          </item>
          <item>
-          <widget class="QDial" name="dial_10">
+          <widget class="QDial" name="dial_12">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>
@@ -1106,7 +1106,7 @@ QWidget:item:selected
           </widget>
          </item>
          <item>
-          <widget class="QDial" name="dial_16">
+          <widget class="QDial" name="dial_14">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>
@@ -1156,7 +1156,7 @@ QWidget:item:selected
           </widget>
          </item>
          <item>
-          <widget class="QDial" name="dial_14">
+          <widget class="QDial" name="dial_16">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>

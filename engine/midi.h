@@ -199,10 +199,15 @@ void CALLBACK MidiInProc_apc40mk2(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, 
         
         printf("Akai APC40 mkII: wMsg=MIM_DATA, dwParam1=%08x, byte=%02x %02x h_%01x l_%01x %02x, dwParam2=%08x\n", dwParam1, b1, b2, b3hi, b3lo, b4, dwParam2);
         
-        if(b4 == 0xb0 && b3hi == 0x3) // Dial
+        if(b4 == 0xb0 && b3hi == 0x3) // top Dial
         {
             apc40mk2_top_dials[b3lo] = (double)b2/(double)0x7f;
             if(apc40mk2_dial_top_notifier != 0) (*apc40mk2_dial_top_notifier)(b3lo, apc40mk2_top_dials[b3lo]);
+        }
+        else if(b4 == 0xb0 && b3hi == 0x1) // right Dial
+        {
+            apc40mk2_right_dials[b3lo] = (double)b2/(double)0x7f;
+            if(apc40mk2_dial_top_notifier != 0) (*apc40mk2_dial_right_notifier)(b3lo, apc40mk2_right_dials[b3lo]);
         }
         else if(b4hi == 0xb && b3 == 0x07)
         {

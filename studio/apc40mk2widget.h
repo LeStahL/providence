@@ -11,6 +11,7 @@ public:
 
     static void setFader(int index, double value);
     static void setDial(int index, double value);
+    static void setRightDial(int index, double value);
     
 signals:
     void faderChanged(int index, double value);
