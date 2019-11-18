@@ -110,45 +110,12 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 
 // Supported resolutions
-const int nresolutions = 9;
-const char *resolution_names[] = 
-{
-    // 16:9
-    "1920*1080",
-    "1600*900",
-    "1280*720",
-    "960*540",
-    // 4:3
-    "1600*1200",
-    "1280*960",
-    "1024*768",
-    "800*600",
-    "640*480"
-};
-const int widths[] = 
-{
-    1920,
-    1600,
-    1280,
-    960,
-    1600,
-    1280,
-    1024,
-    800,
-    640
-};
-const int heights[] = 
-{
-    1080,
-    900,
-    720,
-    540,
-    1200,
-    960,
-    768,
-    600,
-    480
-};
+int selectedIndex = 0,
+    nresolutions = 0,
+    *widths = 0,
+    *heights = 0,
+    *rates = 0,
+    nuniqueresolutions = 0;
 
 // Supported FSAA entries;
 const int nfsaa = 6;
