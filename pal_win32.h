@@ -123,9 +123,7 @@ LRESULT CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				case 5:
 				{
-					int index = SendMessage(hSender, CB_GETCURSEL, 0, 0);
-					w = widths[index];
-                    h = heights[index];
+					selectedIndex = SendMessage(hSender, CB_GETCURSEL, 0, 0);
 				}
                 break;
 				case 6:
@@ -199,7 +197,50 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 #endif
-
+    
+    // Determine supported display device modes
+    DEVMODE dm = { 0 };
+    dm.dmSize = sizeof(dm);
+    
+    // Get number of supported device modes
+    for(nresolutions = 0; EnumDisplaySettings(NULL, nresolutions, &dm) != 0; ++nresolutions);
+    
+    // Allocate arrays
+    widths = (int*) malloc(nresolutions * sizeof(int));
+    heights = (int*) malloc(nresolutions * sizeof(int));
+    rates = (int*)malloc(nresolutions * sizeof(int));
+    
+    // Fill arrays
+    for(int i = 0; i < nresolutions; ++i) 
+    {
+        EnumDisplaySettings(NULL, i, &dm);
+        
+        // Check if settings are already in list
+        int isInList = 0;
+        for(int k = 0; k < i; ++k)
+        {
+            if(widths[k] == dm.dmPelsWidth && heights[k] == dm.dmPelsHeight && rates[k] == dm.dmDisplayFrequency)
+            {
+                isInList = 1;
+                break;
+            }
+        }
+        
+        // Add to list if not present
+        if(!isInList)
+        {
+            widths[nuniqueresolutions] = dm.dmPelsWidth;
+            heights[nuniqueresolutions] = dm.dmPelsHeight;
+            rates[nuniqueresolutions] = dm.dmDisplayFrequency;
+            
+            // Mark default (720p)
+            if(dm.dmPelsWidth == 1280 && dm.dmPelsHeight == 720 && dm.dmDisplayFrequency == 60)     
+                selectedIndex = nuniqueresolutions;
+            
+            ++nuniqueresolutions;
+        }
+    }
+    
 	// Display settings selector
 	WNDCLASS wca = { 0 };
 	wca.lpfnWndProc   = DialogProc;
@@ -227,15 +268,17 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	// Add resolution Combo box
 	HWND hResolutionComboBox = CreateWindow(WC_COMBOBOX, TEXT(""),
 	 CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-	 100, 10, 175, 400, lwnd, (HMENU)5, hInstance,
+	 100, 10, 175, nuniqueresolutions*15, lwnd, (HMENU)5, hInstance,
 	 NULL);
 
 	// Add items to resolution combo box and select full HD
-    for(int i=0; i<nresolutions; ++i)
-        SendMessage(hResolutionComboBox, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) resolution_names[i]);
-	SendMessage(hResolutionComboBox, CB_SETCURSEL, 2, 0);
-    w = widths[2];
-    h = heights[2];
+    for(int i=0; i<nuniqueresolutions; ++i)
+    {
+        char name[1024];
+        sprintf(name, "%d x %d @ %d Hz", widths[i], heights[i], rates[i]);
+        SendMessage(hResolutionComboBox, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) name);
+    }
+	SendMessage(hResolutionComboBox, CB_SETCURSEL, selectedIndex, 0);
 
 	// Add mute checkbox
 	HWND hMuteCheckbox = CreateWindow(WC_BUTTON, TEXT("Mute"),
@@ -372,6 +415,9 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 
 	RegisterClassEx(&wc);
 
+    w = widths[selectedIndex];
+    h = heights[selectedIndex];
+    
 	// Create the window.
     HWND hwnd = CreateWindowEx(
             0,                                                          // Optional window styles.
@@ -405,13 +451,14 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     }
 #endif
     
-    DEVMODE dm = { 0 };
-    dm.dmSize = sizeof(dm);
-    dm.dmPelsWidth = w;
-    dm.dmPelsHeight = h;
-    dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+    DEVMODE dma = { 0 };
+    dma.dmSize = sizeof(dm);
+    dma.dmPelsWidth = widths[selectedIndex];
+    dma.dmPelsHeight = heights[selectedIndex];
+    dma.dmDisplayFrequency = rates[selectedIndex];
+    dma.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
     
-    ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+    ChangeDisplaySettings(&dma, CDS_FULLSCREEN);
     
 	// Show it
 	ShowWindow(hwnd, TRUE);
