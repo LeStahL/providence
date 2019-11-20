@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8138433"
-     inkscape:cx="500.192"
-     inkscape:cy="532.68428"
+     inkscape:zoom="0.70346083"
+     inkscape:cx="101.6885"
+     inkscape:cy="730.69012"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -127,14 +127,12 @@
        id="path-c"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="czc" />
-    <g
-       id="g879">
-      <path
-         id="path-d"
-         style="fill:none;stroke:#ff0000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 56.267269,16.613947 c 2.648082,-1.494302 2.387267,4.459479 2.25069,10.103101 -0.136577,5.643622 1.381326,7.216103 3.050936,6.752071 v 0 M 59.068129,26.46697 c -0.295174,1.844408 -1.425439,3.142632 -2.350723,3.901198 -4.426359,2.158996 -4.332152,-3.047116 -1.850567,-4.651428 1.331232,-0.954113 2.989374,-0.62596 3.55109,-0.150051"
-         inkscape:label="#path-d" />
-    </g>
+    <path
+       inkscape:connector-curvature="0"
+       inkscape:label="#path-d"
+       d="m 56.267269,16.613947 c 2.648082,-1.494302 2.387267,4.459479 2.25069,10.103101 -0.136577,5.643622 1.381326,7.216103 3.050936,6.752071 v 0 M 59.068129,26.46697 c -0.295174,1.844408 -1.425439,3.142632 -2.350723,3.901198 -4.426359,2.158996 -4.332152,-3.047116 -1.850567,-4.651428 1.331232,-0.954113 2.989374,-0.62596 3.55109,-0.150051"
+       style="fill:none;stroke:#ff0000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path-d" />
     <path
        style="fill:none;stroke:#ff0000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 74.472855,28.867708 c -0.442078,0.606935 -1.319544,1.336913 -1.700522,1.50046 -2.807899,1.20538 -5.942968,-3.824205 -1.900582,-6.151888 1.681701,-0.968356 3.589701,0.545684 1.650505,2.300706 -0.781334,0.707128 -2.234019,0.783574 -2.750843,-0.400123"
