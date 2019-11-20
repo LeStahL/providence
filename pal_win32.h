@@ -445,7 +445,7 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
             w,
             h,
             hwnd,
-            0                                                
+            0                     
         );
         capCaptureSequence(hCaptureWindow); 
     }
