@@ -1,26 +1,4 @@
-/* Hardcyber - PC-64k-Intro by Team210 at Deadline 2k19
- * Copyright (C) 2019  Alexander Kraus <nr4@z10.info>
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-#version 150
-
-out vec4 gl_FragColor;
-
-uniform vec2 iResolution;
-uniform float iProgress;
+#version 130
 
 const vec3 c = vec3(1.,0.,-1.);
 const float pi = acos(-1.);
@@ -239,7 +217,7 @@ vec3 o0 = .75*c.yyx+.3*c.yzy,
     t = uv.x * r + uv.y * u;
     dir = normalize(t-o);
 	
-    float ta = .7*sign(uv.x)*abs(pow(sin(pi* /*.3*/ 2.*iProgress),2.));
+    float ta = .7*sign(uv.x)*abs(pow(sin(pi*iTime),2.));
     mat2 R = mat2(cos(ta), sin(ta), -sin(ta), cos(ta));
     vec2 r1 = R*vec2(1.,0.),
         r2 = R*vec2(-1.,0.);
@@ -275,7 +253,6 @@ vec3 o0 = .75*c.yyx+.3*c.yzy,
     {
         butterflytexture(uvp2,c1);
         dbutterflywing(vec2(abs(uvp2.x),uvp2.y), db);
-        c1 = mix(c1, .2*length(c1)/sqrt(3.)*c.xxx, step(-.4+.8*iProgress, uvp2.y));
         col = mix(col, c.yyy, sm(db));
     	db += .04;
         col = mix(col, c1, sm(db));
@@ -284,131 +261,21 @@ vec3 o0 = .75*c.yyx+.3*c.yzy,
     {
         dbutterflywing(vec2(abs(uvp1.x),uvp1.y), db);
         butterflytexture(uvp1,c1);
-        c1 = mix(c1, .2*length(c1)/sqrt(3.)*c.xxx, step(-.4+.8*iProgress, uvp1.y));
         col = mix(col, c.yyy, sm(db));
     	db += .04;
         col = mix(col, c1, sm(db));
     }
-    
-    col = mix(col, 12.*vec3(0.99,0.44,0.37), sm((abs(db-.063)-.01))/12.);
-    col = mix(col, 22.*c.xxy, sm((abs(db-.063)-.001))/12.);
-}
-
-// Creative Commons Attribution-ShareAlike 4.0 International Public License
-// Created by David Hoskins.
-// See https://www.shadertoy.com/view/4djSRW
-void hash22(in vec2 p, out vec2 d)
-{
-	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    d = fract((p3.xx+p3.yz)*p3.zy);
-}
-
-void dist(in vec2 a, in vec2 b, out float d)
-{
-    d = length(b-a);
-}
-
-void nearest_controlpoint(in vec2 x, out vec2 p)
-{
-    float dmin = 1.e5, 
-        d;
-    vec2 dp,
-        y = floor(x);
-    
-    float i = 0.;
-    for(float i = -1.; i <= 1.; i += 1.)
-        for(float j = -1.; j <= 1.; j += 1.)
-        {
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            dist(x, dp, d);
-            if(d<dmin)
-            {
-                dmin = d;
-                p = dp;
-            }
-        }
-}
-
-void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance)
-{
-    d = 1.e4;
-    vec2 y,
-        dp;
-    
-    nearest_controlpoint(x, p);
-    y = floor(p);
-    
-    control_distance = 1.e4;
-    
-    for(float i = -2.; i <= 2.; i += 1.)
-        for(float j = -2.; j <= 2.; j += 1.)
-        {
-            if(i==0. && j==0.) continue;
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            vec2 o = p - dp;
-            float l = length(o);
-            d = min(d,abs(.5*l-dot(x-dp,o)/l));
-            control_distance = min(control_distance,.5*l);
-        }
-}
-
-void lfnoise(in vec2 t, out float n)
-{
-    vec2 i = floor(t);
-    t = fract(t);
-    t = smoothstep(c.yy, c.xx, t);
-    vec2 v1, v2;
-    rand(i, v1.x);
-    rand(i+c.xy, v1.y);
-    rand(i+c.yx, v2.x);
-    rand(i+c.xx, v2.y);
-    v1 = c.zz+2.*mix(v1, v2, t.y);
-    n = mix(v1.x, v1.y, t.x);
-}
-
-void background_geraffel(in vec2 uv, inout vec3 col)
-{
-	float vsize = 1.;
-    float v, vc, d, r, n;
-    vec2 vi, x;
-    
-    for(float i = 0.; i < 6.; i += 1.)
-    {
-        lfnoise(i*c.xx, n);
-        rand(i*c.xx, vi.x);
-        rand(i*c.xx+1337., vi.y);
-        x = uv +(-1.+2.*vi)*vsize;
-        dvoronoi(x*vsize, v, vi, vc);
-        v /= vsize;
-        d = length(x-vi/vsize)-.5*vc/vsize;
-        rand(vi, r);
-        col = mix(col, mix(col, mix(vec3(0.42,0.05,0.95),c.xxx,r*(.5+.5*n)), 2.*step(.5,r)*r), sm(d/22.));
-        vsize += .4;
-    }
-    float phi = atan(uv.y, uv.x);
-    lfnoise(150.*phi*c.xx, n);
-    col = mix(col, vec3(0.69,0.01,0.37), 1.-.5*length(uv)-.1*abs(n));
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = (fragCoord-.5*iResolution.xy)/iResolution.yy;
     uv *= 3.;
-    vec3 col = vec3(0.04,0.02,0.29);
-    background_geraffel(uv, col);
+    vec3 col = texture(iChannel0, fragCoord.xy/iResolution.xy).rgb;
+    
     append_butterfly(uv, col);
     
-    col = mix(col,col*col, col);
-    
-    col = clamp(col,0.,1.);
-    
-    // Scan lines
-    col += vec3(0., 0.05, 0.1)*sin(uv.y*1050.+ 5.);
-    
-    fragColor = vec4(clamp(col,0.,1.),1.0);
+    fragColor = vec4(col,1.0);
 }
 
 void main()
