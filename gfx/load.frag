@@ -402,12 +402,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     append_butterfly(uv, col);
     
     col = mix(col,col*col, col);
-    
     col = clamp(col,0.,1.);
     
     // Scan lines
     col += vec3(0., 0.05, 0.1)*sin(uv.y*1050.+ 5.);
-    
+
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
 
