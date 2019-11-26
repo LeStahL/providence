@@ -25,10 +25,28 @@ def rescale(point, xmin, xmax, ymin, ymax):
     ret = complex(ret.real, -ret.imag)
     return ret
 
+def linearBezier(t, p0, p1):
+    return (1.-t)*p0+t*p1
+
+def quadraticBezier(t, p0, p1, p2):
+    return linearBezier(t, linearBezier(t, p0, p1), linearBezier(t, p1, p2))
+
+def cubicBezier(t, p0, p1, p2, p3):
+    return linearBezier(t, quadraticBezier(t, p0, p1, p2), quadraticBezier(t, p1, p2, p3))
+
+def approximateQuadratic(cubicBezier):
+    quadraticBeziers = []
+    
+    
+    
+    return quadraticBeziers
+
 ast = et.parse('princess-sofia-plain.svg')
 root = ast.getroot()
 
-# Assume, that there is only one document group present.
+f = open("font.gen.py", "wt")
+
+# Assume, that there is only one document group level present.
 for g in root.findall('{http://www.w3.org/2000/svg}g'):
     for path in g:
         id = path.attrib['id'].replace('path-', '')
@@ -101,5 +119,17 @@ for g in root.findall('{http://www.w3.org/2000/svg}g'):
                 
             else:
                 print("Unrecognized path control. Ignoring: ", content)
-                
+        
+        # Convert the cubic array to quadratics. Do this by
+        # - while sum of squared differences is too big:
+        #   - add an on-curve point in the center
+        #   - solve the optimization problem for the missing quad control point
+        # FIXME: I think ppl on the internet are wrong. There is a 2-spline exact representation.
+        # Or at least a deccent approximation without code escalation. Let's try this out.
+        for cubic in cubicBeziers:
+            quadraticBeziers += [ 
+            
+        
         print("\n")
+        
+f.close()
