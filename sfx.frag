@@ -18,9 +18,9 @@ float doubleslope(float t, float a, float d, float s) { return smstep(-.00001,a,
 
 #define NTIME 2
 const float pos_B[2] = float[2](0.,89.);
-const float pos_t[2] = float[2](0.,166.875);
-const float pos_BPS[1] = float[1](.5333);
-const float pos_SPB[1] = float[1](1.8751);
+const float pos_t[2] = float[2](0.,172.2581);
+const float pos_BPS[1] = float[1](.5167);
+const float pos_SPB[1] = float[1](1.9354);
 float BPS, SPB, BT;
 
 float Tsample;
@@ -235,7 +235,7 @@ vec2 mainSynth(float time)
     float dL = 0.;
     float dR = 0.;
 
-    time = mod(time, 166.875);
+    time = mod(time, 172.2581);
     
     int _it;
     for(_it = 0; _it < NTIME - 2 && pos_t[_it + 1] < time; _it++);
