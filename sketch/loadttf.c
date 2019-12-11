@@ -82,7 +82,7 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
         EXTRACT_REVERSED(uint32_t, encodingOffset, cmapOffset + 4 + 8 * i + 4);
         if(platformID == 3 && encodingID == 1) windowsUnicodeOffset = encodingOffset;
         
-//         printf("PLAT %d ENC %d\n", platformID, encodingID);
+        printf("PLAT %d ENC %d\n", platformID, encodingID);
     }
     
     char asciiIndices[128];
