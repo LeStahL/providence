@@ -38,7 +38,6 @@ def approximateQuadratic(cubicBezier):
     quadraticBeziers = []
     
     
-    
     return quadraticBeziers
 
 ast = et.parse('princess-sofia-plain.svg')
@@ -124,10 +123,8 @@ for g in root.findall('{http://www.w3.org/2000/svg}g'):
         # - while sum of squared differences is too big:
         #   - add an on-curve point in the center
         #   - solve the optimization problem for the missing quad control point
-        # FIXME: I think ppl on the internet are wrong. There is a 2-spline exact representation.
-        # Or at least a deccent approximation without code escalation. Let's try this out.
         for cubic in cubicBeziers:
-            quadraticBeziers += [ 
+            #quadraticBeziers += [ 
             
         
         print("\n")
