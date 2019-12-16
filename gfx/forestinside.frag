@@ -129,10 +129,10 @@ void scene(in vec3 x, out vec2 sdf)
     x.y += .3*iTime;
     
     float flo, fhi;
-    lfnoise(3.*x.xy, flo);
-    mfnoise(x.xy, 5.4e1,5.4e3, .75, fhi);
+    mfnoise(x.xy,3.,30.,.25, flo);
+    mfnoise(x.xy, 27.4e1,27.4e3, .75, fhi);
     
-    sdf = vec2(x.z+.1*flo+.03*fhi, 0.);
+    sdf = vec2(x.z+.1*flo+mix(0.,.07,(pow(.5+.5*fhi,2.))), 0.);
     
     float s = 1.;
     float v, vc;
@@ -160,7 +160,9 @@ void scene(in vec3 x, out vec2 sdf)
         float xi = mod(phi,s)-.5*s,
             xii = phi-xi+.52*n;
         vec2 z = y-1.5*r*vec2(cos(xii), sin(xii));
-        smoothmin(sdf.x, length(z)-.1*r+.01*na, .1, sdf.x);
+        float da = length(z)-.1*r+.01*na;
+        add(sdf, vec2(da, 2.), sdf);
+        smoothmin(sdf.x, da, .1, sdf.x);
 
         sdf.x /= 4.;
     }
@@ -178,6 +180,19 @@ void normal(in vec3 x, out vec3 n, in float dx)
     scene(x+dx*c.yyx, na);
     n.z = na.x;
     n = normalize(n-s.x);
+}
+
+void floor_texture(in vec2 uv, inout vec3 col)
+{
+    uv.y += .3*iTime;    
+    
+    float flo, fhi;
+    lfnoise(3.*uv, flo);
+    mfnoise(uv, 7.4e1,7.4e3, .75, fhi);
+    float fa = .5+.5*fhi;
+    
+    col = mix(col, c.yyy*vec3(0.03,0.10,0.18), 4.*pow(fa,2.));
+//     col = mix(col, c.xyy, abs(fa)-.25);
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -226,25 +241,30 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             {
                 col = c.yxy;
             }
-            else if(s.y == 0.)
+//             else if(s.y == 2.)
             {
                 col = mix(vec3(0.74,0.20,0.20),c.yyy,1.-smoothstep(.0,.1,x.z));
-                col = mix(col, 2.*vec3(0.93,0.62,0.14), clamp(dot(n,c.yyx),0.,1.));
+                col = mix(col, 4.*vec3(0.93,0.62,0.14), clamp(dot(n,c.yyx),0.,1.));
                 col = mix(col,vec3(0.84,0.24,0.91), clamp(dot(n, c.xyy),0.,1.));
                 col = mix(col, vec3(0.58,0.18,0.41), clamp(dot(n,c.yxy),0.,1.));
+                
+                if(s.y == 0.)floor_texture(x.xy, col);
                 col = .1*col 
                     + .2*col*dot(l, n)
                     + .4*mix(col, vec3(0.39,0.68,0.55), dot(n,c.yyx))*pow(abs(dot(reflect(l,n),dir)),2.);
                 //col = mix(col,vec3(0.38,1.00,0.86), clamp(dot(n,c.yzy),0.,1.));
             }
-                
+            
 
         }
     
     col = mix(col, mix(2.5*vec3(0.80,0.55,0.47),vec3(0.19,0.54,0.57), clamp((length(uv))/(.5+.1*cos(8.*atan(uv.y,uv.x))),0.,1.)), clamp(sqrt(d)/5.,0.,1.));
-    col = mix(col, sqrt(vec3(0.76,1.00,0.76)), clamp(-x.z/.1,0.,1.));
     
     col *= col;
+    col = mix(col, mix(vec3(0.98,0.95,0.66),mix(c.xyy,vec3(0.98,0.95,0.66),.2), 1.-clamp(x.y/5.,0.,1.)), clamp(-x.z/.1,0.,1.));
+//     if(x.z<.1)
+    
+    
     
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
