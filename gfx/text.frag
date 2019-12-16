@@ -90,8 +90,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     if(uv.y > .38) // Ui overlay with time counter and credits
     {
-        addwindow(uv-.45*vec2(-.45*a,1.-2.*.008*c.yx), new.gba, vec2(.4,.04));
-        addwindow((uv-.45*vec2(.97*a,1.-2.*.008*c.yx))*c.zx, new.gba, vec2(.1,.04));
+        uv.x += .1;
+//         addwindow(uv-.45*vec2(-.45*a,1.-2.*.008*c.yx), new.gba, vec2(.4,.04));
+//         addwindow((uv-.45*vec2(.97*a,1.-2.*.008*c.yx))*c.zx, new.gba, vec2(.1,.04));
         float da;
         dstring((uv-.45*vec2(-.55*a,1.+4.*.008)), 4., .004, d);
         dstring((uv-.45*vec2(-.55*a,1.+2.*.008)), 5., .004, da);
@@ -107,10 +108,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         // Add Static text
         dstring((uv-.45*vec2(-.85*a,1.)), 2., .02, d); // Team210
         
+        new.gba = mix(new.gba, mix(new.gba,c.yyy,.8), sm(d-.005));
         new.gba = mix(new.gba, mix(new.gba,c.xxx,.5), sm(d));
         stroke(d-.002, .002, d);
         new.gba = mix(new.gba, vec3(1.00,0.40,0.39), sm(d));
 
+        uv.x -= .1;
         // Add time overlay
         dtime((uv-.45*vec2(.975*a,1.05)), iTime, .01, d);
         new.gba = mix(new.gba, c.xxx, sm(d));
