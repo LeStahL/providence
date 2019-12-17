@@ -6,7 +6,7 @@
 #define t_branch (64)
 #define t_mountains (96)
 #define t_flowers (128)
-#define duration (160)
+#define duration (177)
 
 const double start_times[] = {
     t_forestmountains,
