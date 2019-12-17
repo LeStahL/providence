@@ -17,6 +17,47 @@
 import xml.etree.ElementTree as et
 from svgpathtools import Path, Line, CubicBezier, parse_path
 import itertools
+import numpy as np
+import scipy as sp
+import scipy.integrate as integrate
+import scipy.optimize as optimize
+import matplotlib.pyplot as plt
+
+def linearBezier(t, p0, p1):
+    return [ (1.-t)*p0[0]+t*p1[0], (1.-t)*p0[1]+t*p1[1] ]
+
+def quadraticBezier(t, p0, p1, p2):
+    return linearBezier(t, linearBezier(t, p0, p1), linearBezier(t, p1, p2))
+
+def cubicBezier(t, p0, p1, p2, p3):
+    return linearBezier(t, quadraticBezier(t, p0, p1, p2), quadraticBezier(t, p1, p2, p3))
+
+def norm(a):
+    return np.sqrt(a[0]*a[0]+a[1]*a[1])
+
+def optimizationIntegrandLow(t, p0, p1, p2, p3, a):
+    b3 = cubicBezier(t, p0, p1, p2, p3)
+    bhalf = cubicBezier(.5, p0, p1, p2, p3)
+    b2lo = quadraticBezier(2.*t, p0, [-a[0]+bhalf[0], -a[1]+bhalf[1]], bhalf)
+    return norm([b3[0]-b2lo[0],b3[1]-b2lo[1]]);
+
+def optimizationIntegrandHigh(t, p0, p1, p2, p3, a):
+    b3 = cubicBezier(t, p0, p1, p2, p3)
+    bhalf = cubicBezier(t, p0, p1, p2, p3)
+    b2hi = quadraticBezier(2.*(t-.5), bhalf, [bhalf[0]-a[0],bhalf[1]-a[1]], p3)
+    return norm([b3[0]-b2hi[0],b3[1]-b2hi[1]]);
+
+def optimizationIntegral(a, p0, p1, p2, p3):
+    (lo, loerr) = integrate.quad(optimizationIntegrandLow, 0., .5, args=(p0,p1,p2,p3,a))
+    (hi, hierr) = integrate.quad(optimizationIntegrandHigh, .5, 1., args=(p0,p1,p2,p3,a))
+    return lo + hi
+
+def cubicToQuadratics(cubic):
+    a = optimize.minimize(optimizationIntegral, [0.,0.], args=(cubic[0],cubic[1],cubic[2],cubic[3])).x
+    bhalf = cubicBezier(.5, cubic[0],cubic[1],cubic[2],cubic[3])
+    p1prime = [-a[0]+bhalf[0], -a[1]+bhalf[1]]
+    p2prime = [bhalf[0]+a[0],bhalf[1]+a[1]]
+    return [ [cubic[0], p1prime, bhalf], [bhalf, p2prime, cubic[3]] ]
 
 def rescale(point, xmin, xmax, ymin, ymax):
     ret = point - complex(xmin, ymin)
@@ -25,25 +66,13 @@ def rescale(point, xmin, xmax, ymin, ymax):
     ret = complex(ret.real, -ret.imag)
     return ret
 
-def linearBezier(t, p0, p1):
-    return (1.-t)*p0+t*p1
-
-def quadraticBezier(t, p0, p1, p2):
-    return linearBezier(t, linearBezier(t, p0, p1), linearBezier(t, p1, p2))
-
-def cubicBezier(t, p0, p1, p2, p3):
-    return linearBezier(t, quadraticBezier(t, p0, p1, p2), quadraticBezier(t, p1, p2, p3))
-
-def approximateQuadratic(cubicBezier):
-    quadraticBeziers = []
-    
-    
-    return quadraticBeziers
-
 ast = et.parse('princess-sofia-plain.svg')
 root = ast.getroot()
 
 f = open("font.gen.py", "wt")
+f.write("import numpy\n")
+f.write("def glyph(char):\n")
+f.write("    quads = []\n")
 
 # Assume, that there is only one document group level present.
 for g in root.findall('{http://www.w3.org/2000/svg}g'):
@@ -114,19 +143,39 @@ for g in root.findall('{http://www.w3.org/2000/svg}g'):
                 
             elif(type(content).__name__ == "Line"):
                 lines += [ [start, end] ]
-                print("Line ", lines[-1])
+                #print("Line ", lines[-1])
                 
             else:
                 print("Unrecognized path control. Ignoring: ", content)
+                
         
-        # Convert the cubic array to quadratics. Do this by
-        # - while sum of squared differences is too big:
-        #   - add an on-curve point in the center
-        #   - solve the optimization problem for the missing quad control point
         for cubic in cubicBeziers:
-            #quadraticBeziers += [ 
-            
+            cubicarray = [ [cubic[0].real, cubic[0].imag], [cubic[1].real, cubic[1].imag], [cubic[2].real, cubic[2].imag], [cubic[3].real, cubic[3].imag] ]
+            quadratics = cubicToQuadratics(cubicarray)
+            quadraticBeziers += [[ complex(quadratics[0][0][0], quadratics[0][0][1]), complex(quadratics[0][1][0], quadratics[0][1][1]), complex(quadratics[0][2][0], quadratics[0][2][1]) ]]
+            quadraticBeziers += [[ complex(quadratics[1][0][0], quadratics[1][0][1]), complex(quadratics[1][1][0], quadratics[1][1][1]), complex(quadratics[1][2][0], quadratics[1][2][1]) ]]
+        
+        # Replace magic character ids with actual characters
+        if id == 'comma': id = ','
+        elif id == 'dot': id = '.'
+        elif id == 'xmark': id = '!'
+        elif id == 'qmark': id = '?'
+        
+        f.write("    if char == '" + id + "':\n")
+        f.write("        quads += [ ")
+        for i in range(len(quadraticBeziers)-2):
+            quadratic = quadraticBeziers[i]
+            #print(quadratic)
+            f.write("[" + str(quadratic[0].real) + "," + str(quadratic[0].imag) + "," + str(quadratic[1].real) + "," + str(quadratic[1].imag) + "," + str(quadratic[2].real) + "," + str(quadratic[2].imag) + "],");
+        quadratic = quadraticBeziers[len(quadraticBeziers)-1]
+        f.write("[" + str(quadratic[0].real) + "," + str(quadratic[0].imag) + "," + str(quadratic[1].real) + "," + str(quadratic[1].imag) + "," + str(quadratic[2].real) + "," + str(quadratic[2].imag) + "] ]\n");
         
         print("\n")
+
+f.write("    return [ quads ]\n")
+f.write("def pack_length(char):\n")
+f.write("    gly = glyph(char)\n")
+f.write("    quads = gly[0]\n")
+f.write("    return 1 + len(quads)*6\n")
         
 f.close()
