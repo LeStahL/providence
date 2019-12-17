@@ -228,6 +228,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     d = -(o.z-.3)/dir.z;
     
+    if(uv.y < .025+abs(uv.x*uv.x))
+    {
     // Raymarch mountains
         for(i = 0; i<N; ++i)
         {
@@ -275,7 +277,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             
 
         }
-    else col = c.xxx;
+        else 
+            col = c.xyy;
+    }
+    else 
+    {
+        col = c.xxx;
+        d = 100.;
+    }
     col = mix(col, mix(2.5*vec3(0.80,0.55,0.47),vec3(0.39,0.54,0.57), clamp((length(uv))/.5,0.,1.)), clamp(sqrt(d)/3.,0.,1.));
     
     col *= col;
