@@ -56,6 +56,7 @@ void RenderViewWidget::setup()
             break;
         }
 
+#if QT_VERSION <= 0x059
         if (openGlSettings.useSRGB == 0)
         {
             surfaceFormat.setColorSpace(QSurfaceFormat::ColorSpace::DefaultColorSpace);
@@ -64,7 +65,7 @@ void RenderViewWidget::setup()
         {
             surfaceFormat.setColorSpace(QSurfaceFormat::ColorSpace::sRGBColorSpace);
         }
-
+#endif
         switch (openGlSettings.swapChain)
         {
         case SwapChain::DoubleBuffer:
