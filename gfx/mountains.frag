@@ -161,7 +161,7 @@ void scene(in vec3 x, out vec2 sdf)
 //     mfnoise(x.xy, 27.4e1,27.4e3, .75, fhi);
     
 //     float d = .3*smoothstep(-1.,1.,abs(flo)-.3)+.4*flo+.01*fhi;
-    sdf = vec2(x.z-.4*flo+.003*fhi-.12*abs(x.x*x.x), 0.);
+    sdf = vec2(x.z-.4*flo+.003*fhi-.12*abs(x.x*x.x)+.1, 0.);
 //     sdf.x += .1*fhi;
     
 }
@@ -188,6 +188,16 @@ void floor_texture(in vec2 uv, in vec3 n, inout vec3 col)
     mfnoise(uv, 22., 2200., .7, fhi);
     col = c.xxx;
     col = mix(col, c.xyy, (.5+.5*fhi)*dot(n,c.yzy));
+    
+//     mfnoise(uv,1.,200.,.4, flo);
+//     flo = .5+.5*flo;
+//     flo = 38.*pow(sin(.5+.5*flo),3.);
+//     flo = 4.*(pow(abs(flo),1.));
+//     flo = 2.*smoothstep(1.,0.,flo);
+//     float dx;
+//     lfnoise(uv.y*c.xx, dx);
+//     flo *= smoothstep(-.2,.2,abs(uv.x-.3*dx));
+//     col = mix(col, 12.*c.xxx, smoothstep(1.,-1.,abs(flo)-.3));
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -208,7 +218,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         x,
         c1 = c.yyy,
         l;
-    int N = 450,
+    int N = 850,
         i;
     float d = 0.,
         dlower,
@@ -226,6 +236,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             if(s.x < 1.e-4) break;
 //             d += s.x<3.e-2?min(s.x,1.e-3):s.x;
             d += s.x<4.e-2?min(s.x,3.e-3):min(s.x, 2.e-2);
+            if(d>10.)
+            {
+                i = N;
+                break;
+            }
 //             d += s.x;
         }
         
@@ -243,6 +258,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 //                 col = mix(vec3(0.74,0.20,0.20),c.yyy,1.-smoothstep(.0,.1,x.z));
 //                 col = mix(col, 4.*vec3(0.93,0.62,0.14), clamp(dot(n,c.yyx),0.,1.));
 //                 col = mix(col,vec3(0.84,0.24,0.91), clamp(dot(n, c.xyy),0.,1.));
+                
+                
                 
                 if(s.y == 0.)
                 {
