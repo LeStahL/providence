@@ -33,18 +33,18 @@ def optimizationIntegral(a, p0, p1, p2, p3):
     (hi, hierr) = integrate.quad(optimizationIntegrandHigh, .5, 1., args=(p0,p1,p2,p3,a))
     return lo + hi
 
+def cubicToQuadratics(cubic):
+    a = optimize.minimize(optimizationIntegral, [0.,0.], args=(cubic[0],cubic[1],cubic[2],cubic[3])).x
+    bhalf = cubicBezier(.5, cubic[0],cubic[1],cubic[2],cubic[3])
+    p1prime = [-a[0]+bhalf[0], -a[1]+bhalf[1]]
+    p2prime = [bhalf[0]+a[0],bhalf[1]+a[1]]
+    return [ [p0, p1prime, bhalf], [bhalf, p2prime, p3] ]
+    
 # Example cubic spline
 p0 = [ 3., -5. ]
 p1 = [ 2.1, 2.9 ]
 p2 = [ 3.1, -0.2 ]
 p3 = [ -2.0, -1.3 ]
-
-# Helper point at half
-bhalf = cubicBezier(.5, p0, p1, p2, p3)
-
-result = optimize.minimize(optimizationIntegral, [.5*(bhalf[0]+p0[0]),.5*(bhalf[1]+p0[1])], args=(p0,p1,p2,p3))
-a = result.x
-print(a)
 
 fig = plt.figure()
 t = np.arange(0., 1., 1.e-3)
@@ -57,8 +57,11 @@ plt.plot([p3[0]], [p3[1]], 'ro')
 plt.plot([p1[0]], [p1[1]], 'bo')
 plt.plot([p2[0]], [p2[1]], 'bo')
 
-p1prime = [-a[0]+bhalf[0], -a[1]+bhalf[1]]
-p2prime = [bhalf[0]+a[0],bhalf[1]+a[1]]
+quadratics = cubicToQuadratics([p0,p1,p2,p3])
+
+p1prime = quadratics[0][1]
+p2prime = quadratics[1][1]
+bhalf = quadratics[0][2]
 
 lcurve = [ quadraticBezier(2.*ti, p0, p1prime, bhalf) for ti in np.arange(0., .5, 1.e-3) ]
 lx = [ lcurve[i][0] for i in range(len(lcurve)) ]
