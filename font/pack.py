@@ -16,7 +16,7 @@
 
 import numpy
 import struct
-import font
+import fontgen
 
 # Pack everything as float. If executable size is a problem, this can be optimized slightly.
 # Pack alignment:
@@ -26,12 +26,9 @@ import font
 #     ordinal
 #     offset
 # for glyph in glyphs
-#     nlines
-#     for line in lines
-#         x1 y1 x2 y2
-#     nsmoothlines
-#     for line in smoothlines
-#         x1 y1 x2 y2
+#     nquads
+#     for quad in quads
+#         x1 y1 x2 y2 x3 y3
 # nstrings
 # for string in nstrings
 #     offset
@@ -70,7 +67,7 @@ for char in ordinals:
     texture += struct.pack(fmt, float(pack_len))
     
     # Update offset
-    pack_len += font.pack_length(char)
+    pack_len += fontgen.pack_length(char)
     
 # Pack string database intex
 texture = struct.pack(fmt, float(pack_len)) + texture
@@ -78,25 +75,16 @@ texture = struct.pack(fmt, float(pack_len)) + texture
 # Pack the glyph data
 for char in ordinals:
     # Get glyph inlines
-    glyph = font.glyph(char)
+    glyph = fontgen.glyph(char)
     
-    # Pack number of lines
-    lines = glyph[0]
-    texture += struct.pack(fmt, float(len(lines)))
+    # Pack number of quads
+    quads = glyph[0]
+    texture += struct.pack(fmt, float(len(quads)))
     
-    # Pack lines
-    for line in lines:
-        for i in range(4):
-            texture += struct.pack(fmt, float(line[i]))
-            
-    # Pack number of smoothlines
-    smoothlines = glyph[1]
-    texture += struct.pack(fmt, float(len(smoothlines)))
-    
-    # Pack smoothlines
-    for line in smoothlines:
-        for i in range(4):
-            texture += struct.pack(fmt, float(line[i]))
+    # Pack quads
+    for quad in quads:
+        for i in range(6):
+            texture += struct.pack(fmt, float(quad[i]))
 
 print("Packing string database.")
 # Pack the string database index

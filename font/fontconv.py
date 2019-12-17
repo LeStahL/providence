@@ -69,7 +69,7 @@ def rescale(point, xmin, xmax, ymin, ymax):
 ast = et.parse('princess-sofia-plain.svg')
 root = ast.getroot()
 
-f = open("font.gen.py", "wt")
+f = open("fontgen.py", "wt")
 f.write("import numpy\n")
 f.write("def glyph(char):\n")
 f.write("    quads = []\n")

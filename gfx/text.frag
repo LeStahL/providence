@@ -58,6 +58,7 @@ void dfloat(in vec2 x, in float num, in float size, out float dst);
 void smoothmin(in float a, in float b, in float k, out float dst);
 void dint(in vec2 x, in float num, in float size, in float ndigits, out float dst);
 void dtime(in vec2 x, in float num, in float size, out float dst);
+void dspline2(in vec2 x, in vec2 p0, in vec2 p1, in vec2 p2, out float ds);
 
 void addwindow(in vec2 uv, inout vec3 col, in vec2 dimension);
 
