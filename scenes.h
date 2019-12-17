@@ -3,16 +3,19 @@
 
 #define t_forestmountains (0)
 #define t_forestinside (32)
-#define duration (64)
+#define t_branch (64)
+#define duration (96)
 
 const double start_times[] = {
     t_forestmountains,
     t_forestinside,
+    t_branch,
 };
 
 const char *scene_names[] = {
     "Forest Mountains",
     "Forest Inside",
+    "Branch",
 };
 
 const unsigned int nscenes = ARRAYSIZE(start_times);

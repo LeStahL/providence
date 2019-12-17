@@ -11,6 +11,12 @@
             "prefix": "forestinside",
             "t_end": 64,
             "t_start": 32
+        },
+        {
+            "name": "Branch",
+            "prefix": "branch",
+            "t_end": 96,
+            "t_start": 64
         }
     ]
 }
