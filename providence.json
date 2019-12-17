@@ -23,6 +23,12 @@
             "prefix": "mountains",
             "t_end": 128,
             "t_start": 96
+        },
+        {
+            "name": "Flowers",
+            "prefix": "flowers",
+            "t_end": 160,
+            "t_start": 128
         }
     ]
 }
