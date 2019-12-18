@@ -126,7 +126,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         new.gba = mix(new.gba, c.xxx, sm(d));
     }
     
-    
+    dstring((uv-.45*vec2(-.85*a,0.)), 3., .08, d); // Providence
+    d -= .005;
+    new.gba = mix(new.gba, c.xxx, sm(d));
     
    /* 
     if(iTime < 20.)
