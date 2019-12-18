@@ -170,19 +170,19 @@ float _BOOMENV2(float t){return t <=.259? linmix(t,3.861,0.,0.,1.):t <=.868? lin
 float _BOOMENV3(float t){return t <=.62? linmix(t,1.6129,0.,0.,1.):t <=1.899? linmix(t,.7819,-.4848,1.,0.):0.;}
 float fqmbace5_volume(float B)
 {
-    return B<0 ? 0. : (B>=0. && B<2.) ? 0. : (B>=2. && B<6.) ? linmix(B, .25, -.5, 0.0, 1.0) : (B>=14. && B<15.5) ? linmix(B, .6667, -9.3333, 1.0, 0.1) : (B>=15.5 && B<16.) ? linmix(B, 2., -31., 0.1, 0.05) : (B>=16. && B<32.) ? 1.2 : 1.;
+    return B<0 ? 0. : (B>=0. && B<2.) ? 0. : (B>=2. && B<6.) ? linmix(B, .25, -.5, 0.0, 1.0) : (B>=14. && B<15.5) ? linmix(B, .6667, -9.3333, 1.0, 0.1) : (B>=15.5 && B<16.) ? linmix(B, 2., -31., 0.1, 0.05) : (B>=16. && B<32.) ? 1.1 : 1.;
 }
 float fqmbace7sat_vol(float B)
 {
-    return B<0 ? 0. : (B>=0. && B<.5) ? linmix(B, 2., 0., 0.0, 1.0) : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.0, 0.1) : (B>=80. && B<88.) ? 1.66 : (B>=88. && B<98.) ? linmix(B, .1, -8.8, 1.6, 0.0) : 1.;
+    return B<0 ? 0. : (B>=0. && B<2.5) ? linmix(B, .4, 0., 0.0, 1.0) : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.0, 0.1) : (B>=80. && B<88.) ? 1.66 : (B>=88. && B<98.) ? linmix(B, .1, -8.8, 1.6, 0.0) : 1.;
 }
 float fett2_volume(float B)
 {
-    return B<0 ? 0. : (B>=0. && B<5.) ? linmix(B, .2, 0., 0.1, 1.0) : (B>=8. && B<11.) ? linmix(B, .3333, -2.6667, 1.0, 0.05) : (B>=11. && B<14.) ? linmix(B, .3333, -3.6667, 0.4, 1.0) : (B>=14. && B<16.) ? linmix(B, .5, -7., 1.0, 0.1) : (B>=56. && B<62.) ? linmix(B, .1667, -9.3333, 1.0, 0.66) : (B>=62. && B<67.) ? linmix(B, .2, -12.4, 0.66, 1.0) : (B>=80. && B<84.) ? linmix(B, .25, -20., 0.76, 1.0) : (B>=91. && B<98.) ? linmix(B, .1429, -13., 1.0, 0.0) : 1.;
+    return B<0 ? 0. : (B>=0. && B<5.) ? linmix(B, .2, 0., 0.1, 0.9) : (B>=8. && B<11.) ? linmix(B, .3333, -2.6667, 0.9, 0.05) : (B>=11. && B<14.) ? linmix(B, .3333, -3.6667, 0.4, 1.0) : (B>=14. && B<16.) ? linmix(B, .5, -7., 1.0, 0.1) : (B>=56. && B<62.) ? linmix(B, .1667, -9.3333, 1.0, 0.66) : (B>=62. && B<67.) ? linmix(B, .2, -12.4, 0.66, 1.0) : (B>=80. && B<84.) ? linmix(B, .25, -20., 0.76, 1.0) : (B>=91. && B<98.) ? linmix(B, .1429, -13., 1.0, 0.0) : 1.;
 }
 float hoboe_vol(float B)
 {
-    return B<0 ? 0. : (B>=0. && B<4.) ? linmix(B, .25, 0., 0.21, 1.5) : (B>=4. && B<15.) ? 1.6 : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.6, 0.4) : 1.;
+    return B<0 ? 0. : (B>=0. && B<4.) ? linmix(B, .25, 0., 0.21, 1.1) : (B>=4. && B<15.) ? 1.1 : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.1, 0.4) : 1.;
 }
 
 uniform float iBlockOffset;
@@ -215,8 +215,8 @@ float rfloat(int off)
     return mix(1., -1., sign) * (1. + significand * 9.765625e-4) * pow(2.,exponent-15.);
 }
 
-#define NTRK 14
-#define NMOD 139
+#define NTRK 13
+#define NMOD 137
 #define NPTN 28
 #define NNOT 879
 #define NDRM 49
@@ -395,15 +395,6 @@ env = theta(Bprog)*pow(1.-smstep(Boff-rel, Boff, B),4);
                         amaysynR = sinshape((QFM(_t2,f,0.,.00787*125.,.00787*env_AHDSRexp(Bprog,L,.0001,.097,.244,.195,0.)*88.,.00787*env_AHDSRexp(Bprog,L,.0001,.134,.246,.471,0.)*120.,.00787*env_AHDSRexp(Bprog,L,.0001,.051,.162,.161,0.)*91.,.999,1.,1.+.0939*(.5+(.5*_sin(.3*Bprog))),2.,.00787*101.,.00787*86.,.00787*1.,.00787*98.,8.)*env_AHDSRexp(Bprog,L,.0001,.032,.185,.109,.048)),.5,7.);
 env = theta(Bprog)*pow(1.-smstep(Boff-rel, Boff, B),10);
                     }
-                    else if(syn == 100){
-                        
-                        amaysynL = (vel*sinshape(QFM(_t,f,0.,.00787*125.,.00787*env_AHDSR(Bprog,L,.0001,.047,.01,.404,0.)*20.,.00787*env_AHDSR(Bprog,L,.0001,.151,.071,.069,0.)*110.,.00787*env_AHDSR(Bprog,L,.0001,.232,.08,.003,0.)*65.,.999,1.,1.+.0799*(.5+(.5*_sin(.18*Bprog))),2.,.00787*109.,.00787*21.,.00787*94.,.00787*0.,11.),.03*aux,3.)*env_AHDSR(Bprog,L,.0001,.03,.167,.796,.114))
-      +_sq_(.501*f*_t,.4+.3*(.5+(.5*_sin(.8*Bprog))))
-      +.6*clip((1.+.2*aux)*_sin(.25*f*_t));
-                        amaysynR = (vel*sinshape(QFM(_t2,f,0.,.00787*125.,.00787*env_AHDSR(Bprog,L,.0001,.047,.01,.404,0.)*20.,.00787*env_AHDSR(Bprog,L,.0001,.151,.071,.069,0.)*110.,.00787*env_AHDSR(Bprog,L,.0001,.232,.08,.003,0.)*65.,.999,1.,1.+.0799*(.5+(.5*_sin(.18*Bprog))),2.,.00787*109.,.00787*21.,.00787*94.,.00787*0.,11.),.03*aux,3.)*env_AHDSR(Bprog,L,.0001,.03,.167,.796,.114))
-      +_sq_(.501*f*_t2,.4+.3*(.5+(.5*_sin(.8*Bprog))))
-      +.6*clip((1.+.2*aux)*_sin(.25*f*_t2));
-                    }
                     else if(syn == 101){
                         
                         amaysynL = fett2_volume(BT)*env_AHDSRexp(Bprog,L,.05,0.,.05,.8,.5)*s_atan(23.*(s_atan(MADD(_t,.5*f,.5*lpnoise(_t + 0.,500.)*exp(-10.*Bprog)+env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3)*(.5+(.5*_sin(4.2*BT))),8,1,(.4+(.6*_sin(.21*Bprog))),2000.*env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3),100.,5.,100.,.001,.7,0.,0)+MADD(_t,1.01*.5*f,.5*lpnoise(_t + 0.,500.)*exp(-10.*Bprog)+env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3)*(.5+(.5*_sin(4.2*BT))),8,1,(.4+(.6*_sin(.21*Bprog))),2000.*env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3),100.,5.,100.,.001,.7,0.,0)+MADD(_t,.499*.5*f,.5*lpnoise(_t + 0.,500.)*exp(-10.*Bprog)+env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3)*(.5+(.5*_sin(4.2*BT))),8,1,(.4+(.6*_sin(.21*Bprog))),2000.*env_AHDSRexp(Bprog,L,.7,0.,.3,.3,.3),100.,5.,100.,.001,.7,0.,0))+.1*exp(-10.*Bprog)*lpnoise(_t + 0.,500.)));
@@ -472,8 +463,8 @@ env = theta(Bprog)*pow(1.-smstep(Boff-rel, Boff, B),3);
             }
         }
     }
-    float masterL = .18 * sidechain * s_atan(sL) + .73 * dL;
-    float masterR = .18 * sidechain * s_atan(sR) + .73 * dR;
+    float masterL = .12999999999999995 * sidechain * s_atan(sL) + .74 * dL;
+    float masterR = .12999999999999995 * sidechain * s_atan(sR) + .74 * dR;
     return vec2(
         (BT > 77 && BT < 80) ? (1. - 0.26*(BT-77.)) * masterL: masterL,
         (BT > 77 && BT < 80) ? (1. - 0.26*(BT-77.)) * masterR: masterR);
