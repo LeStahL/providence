@@ -108,13 +108,13 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
             printf("\nChar: %d (%c)\n", i, (char)(i=='\n'?'n':i));
             
             // Convert glyph index to GLYF offset with LOCA table
-            EXTRACT_REVERSED(uint32_t, glyphOffset, locaOffset + asciiIndices[i]);
+            EXTRACT_REVERSED(uint32_t, glyphOffset, locaOffset + 4*asciiIndices[i]);
             printf("Glyph offset: %u\n", glyphOffset);
             
             // Extract actual glyph data from GLYF
             // First determine the number of contours
             EXTRACT_REVERSED(int16_t, numberOfContours, glyfOffset + glyphOffset);
-//             printf("Contours: %d @ ", numberOfContours);
+            printf("Contours: %d @ ", numberOfContours);
             if(numberOfContours >= 0) // Glyph is not composite
             {
                 int *endpoints = (int *)malloc(numberOfContours*sizeof(int));
@@ -122,9 +122,9 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
                 {
                     EXTRACT_REVERSED(uint16_t, endPointOfContours, glyfOffset + glyphOffset + 10 + 2 * j);
                     endpoints[j] = endPointOfContours;
-//                     printf("%d ", endpoints[j]);
+                    printf("%d ", endpoints[j]);
                 }
-//                 printf("\n");
+                printf("\n");
                 
                 // Extract number of flags and data from contour end point array
                 EXTRACT_REVERSED(uint16_t, numberOfPoints, glyfOffset + glyphOffset + 10 + 2 * (numberOfContours-1));
