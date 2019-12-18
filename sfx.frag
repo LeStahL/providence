@@ -174,7 +174,7 @@ float fqmbace5_volume(float B)
 }
 float fqmbace7sat_vol(float B)
 {
-    return B<0 ? 0. : (B>=0. && B<2.5) ? linmix(B, .4, 0., 0.0, 1.0) : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.0, 0.1) : (B>=80. && B<88.) ? 1.66 : (B>=88. && B<98.) ? linmix(B, .1, -8.8, 1.6, 0.0) : 1.;
+    return B<0 ? 0. : (B>=0. && B<2.5) ? linmix(B, .4, 0., 0.0, 1.0) : (B>=15. && B<16.) ? linmix(B, 1., -15., 1.0, 0.1) : (B>=80. && B<88.) ? 1.5 : (B>=88. && B<98.) ? linmix(B, .1, -8.8, 1.5, 0.0) : 1.;
 }
 float fett2_volume(float B)
 {
