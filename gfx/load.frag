@@ -25,6 +25,8 @@ uniform float iProgress;
 const vec3 c = vec3(1.,0.,-1.);
 const float pi = acos(-1.);
 
+const float fsaa = 4.;
+
 void rand(in vec2 x, out float n)
 {
     x += 400.;
@@ -412,5 +414,16 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 void main()
 {
-    mainImage(gl_FragColor, gl_FragCoord.xy);
+    vec4 col = vec4(0.);
+    float bound = sqrt(fsaa)-1.;
+   	for(float i = -.5*bound; i<=.5*bound; i+=1.)
+        for(float j=-.5*bound; j<=.5*bound; j+=1.)
+        {
+            vec4 c1;
+            mainImage(c1, gl_FragCoord.xy+vec2(i,j)*1.5/max(bound, 1.));
+     		col += c1;
+        }
+    col /= fsaa;
+    gl_FragColor = col;
 }
+
