@@ -85,6 +85,25 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
     }
     
     // Extract CMAP subtable information
+    EXTRACT_REVERSED(uint16_t, segCountX2, cmapOffset + windowsUnicodeOffset + 6);
+    uint16_t segCount = segCountX2 / 2;
+    printf("Number of segments: %u\n", segCount);
+    
+    // Extract range intervals
+    uint16_t *startCode = (uint16_t*) malloc(segCount*sizeof(uint16_t)),
+        *endCode = (uint16_t*) malloc(segCount*sizeof(uint16_t)), 
+        *idRangeOffset = (uint16_t*) malloc(segCount*sizeof(uint16_t));
+    for(int i=0; i<segCount; ++i)
+    {
+        EXTRACT_REVERSED(uint16_t, endCodeI, cmapOffset + windowsUnicodeOffset + 14 + 2 * i);
+        endCode[i] = endCodeI;
+        EXTRACT_REVERSED(uint16_t, startCodeI, cmapOffset + windowsUnicodeOffset + 16 + segCountX2 + 2 * i);
+        startCode[i] = startCodeI;
+        EXTRACT_REVERSED(uint16_t, idRangeOffsetI, cmapOffset + windowsUnicodeOffset + 16 + 3 * segCountX2 + 2 * i);
+        idRangeOffset[i] = idRangeOffsetI;
+    }
+    //14 :: end code
+    
 //     EXTRACT_REVERSED(uint16_t, cmapFormat, cmapOffset + windowsUnicodeOffset);
 //     printf("CMAP subtable 3/1 format is %u\n", cmapFormat);
 //     
@@ -93,10 +112,26 @@ int TTF2Texture(uint16_t *x, uint16_t *y, uint8_t *flags, const char *filename)
     
     // Determine the glyph indices of all relevant ascii chars from CMAP
     uint16_t asciiIndices[128];
-    for(int i=0; i<128; ++i) 
+    for(int i=32; i<127; ++i) 
     {
         EXTRACT_REVERSED(uint16_t, index, cmapOffset + windowsUnicodeOffset + 24 + 2*i);
-        asciiIndices[i] = index;
+//         asciiIndices[i] = index;
+        int segment = -1;
+        for(int j=0; j<segCount; ++j)
+        {
+            if(i > startCode[j] && i < endCode[j]) 
+            {
+                segment = j;
+                printf("Found segment index: %d\n", j);
+                break;
+            }
+        }
+        if(segment == -1) printf("glyph data for %c not present in font file.\n", (char)i);
+        
+        asciiIndices[i] = *(idRangeOffset[segment]/2
+            + (i - startCode[segment])
+            + &idRangeOffset[segment]);
+        
         printf("%c / %d -> index %u\n", (char)i, i, (unsigned int)asciiIndices[i]);
     }
     
