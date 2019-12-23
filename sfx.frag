@@ -463,8 +463,8 @@ env = theta(Bprog)*pow(1.-smstep(Boff-rel, Boff, B),3);
             }
         }
     }
-    float masterL = .12999999999999995 * sidechain * s_atan(sL) + .74 * dL;
-    float masterR = .12999999999999995 * sidechain * s_atan(sR) + .74 * dR;
+    float masterL = .26 * sidechain * s_atan(sL) + .8 * dL;
+    float masterR = .26 * sidechain * s_atan(sR) + .8 * dR;
     return vec2(
         (BT > 77 && BT < 80) ? (1. - 0.26*(BT-77.)) * masterL: masterL,
         (BT > 77 && BT < 80) ? (1. - 0.26*(BT-77.)) * masterR: masterR);
