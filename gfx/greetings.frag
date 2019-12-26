@@ -126,6 +126,12 @@ void dbeerpolygon(in vec2 x, in float N, in float s, out float d)
     d = -0.5+length(x)*cos(t)/cos(0.5*d)+.1*smoothstep(s,1.,clamp(abs(t),0.,1.));
 }
 
+void dlinesegment(in vec2 x, in vec2 p1, in vec2 p2, out float d)
+{
+    vec2 da = p2-p1;
+    d = length(x-mix(p1, p2, clamp(dot(x-p1, da)/dot(da,da),0.,1.)));
+}
+
 //distance to spline with parameter t
 float dist3(vec3 p0,vec3 p1,vec3 p2,vec3 x,float t)
 {
@@ -161,6 +167,163 @@ void dspline3(in vec3 x, in vec3 p0, in vec3 p1, in vec3 p2, out float ds)
             dist3(p0,p1,p2,x,t.z)
         )
     );
+}
+
+void rot(in float phi, out mat2 m)
+{
+    vec2 cs = vec2(cos(phi), sin(phi));
+    m = mat2(cs.x, -cs.y, cs.y, cs.x);
+}
+
+void dcircle(in vec2 x, out float d)
+{
+    d = length(x)-1.0;
+}
+
+void dbox(in vec2 x, in vec2 b, out float d)
+{
+    vec2 da = abs(x)-b;
+    d = length(max(da,c.yy)) + min(max(da.x,da.y),0.0);
+}
+
+const int npts = 208;
+const float path[npts] = float[npts](-0.500,0.145,-0.500,-0.029,-0.500,-0.029,-0.353,-0.029,-0.353,-0.029,-0.353,-0.087,-0.353,-0.087,-0.500,-0.087,-0.500,-0.087,-0.500,-0.145,-0.500,-0.145,-0.280,-0.145,-0.280,-0.145,-0.280,0.029,-0.280,0.029,-0.427,0.029,-0.427,0.029,-0.427,0.087,-0.427,0.087,-0.280,0.087,-0.280,0.087,-0.280,0.145,-0.280,0.145,-0.500,0.145,-0.500,0.145,-0.500,0.145,-0.240,0.145,-0.240,0.087,-0.240,0.087,-0.093,0.087,-0.093,0.087,-0.093,0.029,-0.093,0.029,-0.020,0.029,-0.020,0.029,-0.020,0.145,-0.020,0.145,-0.240,0.145,-0.093,0.029,-0.167,0.029,-0.167,0.029,-0.167,-0.087,-0.167,-0.087,-0.093,-0.087,-0.093,-0.087,-0.093,0.029,-0.093,0.029,-0.093,0.029,-0.167,-0.087,-0.240,-0.087,-0.240,-0.087,-0.240,-0.145,-0.240,-0.145,-0.167,-0.145,-0.167,-0.145,-0.167,-0.087,0.093,0.145,0.093,0.087,0.093,0.087,0.020,0.087,0.020,0.087,0.020,0.029,0.020,0.029,0.093,0.029,0.093,0.029,0.093,-0.087,0.093,-0.087,0.020,-0.087,0.020,-0.087,0.020,-0.145,0.020,-0.145,0.240,-0.145,0.240,-0.145,0.240,-0.087,0.240,-0.087,0.167,-0.087,0.167,-0.087,0.167,0.145,0.167,0.145,0.093,0.145,0.353,0.145,0.353,0.087,0.353,0.087,0.280,0.087,0.280,0.087,0.280,0.029,0.280,0.029,0.353,0.029,0.353,0.029,0.353,-0.087,0.353,-0.087,0.280,-0.087,0.280,-0.087,0.280,-0.145,0.280,-0.145,0.500,-0.145,0.500,-0.145,0.500,-0.087,0.500,-0.087,0.427,-0.087,0.427,-0.087,0.427,0.145,0.427,0.145,0.353,0.145);
+void d5711(in vec2 x, out float ret)
+{
+    float d = 1.;
+//     dpolygon(.5*x,6.0,d);
+    
+    x *= .7;
+    ret = 1.;
+    float da;
+
+    float n = 0.;
+    for(int i=0; i<npts/4; ++i)
+    {
+        vec2 ptsi = vec2(path[4*i], path[4*i+1]),
+            ptsip1 = vec2(path[4*i+2], path[4*i+3]),
+            k = x-ptsi, 
+            d = ptsip1-ptsi;
+        
+        float beta = k.x/d.x,
+            alpha = d.y*k.x/d.x-k.y;
+        
+        n += step(.0, beta)*step(beta, 1.)*step(0., alpha);
+        dlinesegment(x, ptsi, ptsip1, da);
+        ret = min(ret, da);
+    }
+    
+    ret = mix(ret, -ret, mod(n, 2.));
+    
+//     ret = max(d,-ret);
+    ret /= .7;
+}
+
+void stroke(in float d0, in float s, out float d)
+{
+    d = abs(d0)-s;
+}
+
+void dfarbrausch(in vec2 x, out float d)
+{
+//     dpolygon(.5*x,6.0,d);
+    float da, d0;
+    
+    x += vec2(.1,0.);
+    x *= 1.2;
+    
+    dlinesegment(x,vec2(-.65,.05),vec2(-.5,.05),d0);
+    dlinesegment(x,vec2(-.5,.05),vec2(-.2,-.49),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(-.2,-.49),vec2(-.0,-.49),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(-.0,-.49),vec2(-.27,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(-.07,0.),vec2(-.27,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.2,-.49),vec2(-.07,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.4,-.49),vec2(.13,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.4,-.49),vec2(.2,-.49),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.33,0.),vec2(.13,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.33,0.),vec2(.51,-.33),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.6,-.15),vec2(.51,-.33),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.53,0.),vec2(.6,-.15),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.7,0.),vec2(.53,.0),da);
+    d0 = min(d0, da);
+    dlinesegment(x,vec2(.7,0.),vec2(.68,-.04),da);
+    d0 = min(d0, da);
+    dpolygon(5.*(x+vec2(.3,.65)),6.,da);
+    d0 = min(d0, da/5.);
+    dpolygon(5.*(x+vec2(-.5,.65)),6.,da);
+    d0 = min(d0, da/5.);
+    
+    stroke(d0,.035, d0);
+    d = d0;
+}
+
+void dhaujobb(in vec2 x, out float d)
+{
+//     dpolygon(.5*x,6.0,d);
+    float da, d0;
+    mat2 m;
+	rot(.3,m);
+    x = 1.1*x*m;
+    x.x *= 1.1;
+        
+    x += vec2(-.05,.2);
+    
+    // Left leg
+    dbox(x+.35*c.xx,vec2(.1,.05),d0);
+    dbox(x+vec2(.3,.25),vec2(.05,.15),da);
+    d0 = min(d0,da);
+    dbox(x+vec2(.2,.15),vec2(.1,.05),da);
+    d0 = min(d0,da);
+    dbox(x+vec2(.15,.05),vec2(.05,.15),da);
+    d0 = min(d0,da);
+    
+    // Right leg
+    dbox(x-vec2(.65,.35),vec2(.05,.15),da);
+    d0 = min(d0,da);
+
+    // Torso
+    rot(.2, m);
+    dbox(m*(x-vec2(.25,.15)),vec2(.45,.05),da);
+    d0 = min(d0,da);
+    dbox(m*(x-vec2(-.15,.35)),vec2(.45,.05),da);
+    d0 = min(d0,da);
+    rot(pi/8.,m);
+    dbox(m*(x-vec2(.0,.25)),vec2(.1,.15),da);
+    d0 = min(d0,da);
+    
+    // Penis
+    dbox(m*(x-vec2(.1,-.0)),vec2(.025,.1),da);
+    d0 = min(d0,da);
+    
+    // Left hand
+    rot(.3,m);
+    dbox(m*(x-vec2(.235,.535)),vec2(.035,.15),da);
+    d0 = min(d0,da);
+    dbox(m*(x-vec2(.225,.7)),vec2(.075,.025),da);
+    d0 = min(d0,da);
+    
+    // Right hand
+    rot(-.2,m);
+    dbox(m*(x+vec2(.585,-.2)),vec2(.0375,.1),da);
+    d0 = min(d0,da);
+    
+    // Head
+    dcircle(6.*(x-vec2(-.15,.58)),da);
+    d0 = min(d0,da/6.);
+    
+    d0 -= .05*(abs(x.x)+abs(x.y)-.2);
+    d = d0;
 }
 
 void add(in vec2 sda, in vec2 sdb, out vec2 sdf)
@@ -258,6 +421,11 @@ void normal(in vec3 x, out vec3 n, in float dx)
     n = normalize(n-s.x);
 }
 
+float sm(in float d)
+{
+    return smoothstep(1.5/iResolution.y, -1.5/iResolution.y, d);
+}
+
 void floor_texture(in vec2 uv, in vec3 n, inout vec3 col)
 {
     uv.y += .3*iTime;
@@ -279,23 +447,56 @@ void floor_texture(in vec2 uv, in vec3 n, inout vec3 col)
 void greetings_texture(in vec2 uv, out vec3 col)
 {
     uv.y += .3*iTime;
-    uv.x -= .4;
-    
-    float dx, dy;
-    lfnoise(uv.y*c.xx, dx);
-    dx *= .0005;
-    mfnoise(uv.y*c.xx, 1.,100., .15, dy);
-    dy = .9+.1*dy;
+    uv.x += .1;
     
     float na;
-    mfnoise((uv.x-dx)*c.xx*tanh(dy), 40., 4000., .75, na);
+
+    const float lsize = .5;
+    float y = mod(uv.y, lsize)-.5*lsize,
+        d,
+        yi = (uv.y-y)/lsize;
+    rand(yi*c.xx, na);
+//     mat2 mm = mat2(cos(pi*na), sin(pi*na), -sin(pi*na), cos(pi*na));
+//     y = mm * vec2(x.x-.5*na, y).x;
+    vec2 z = vec2(uv.x-.5*na+.3, y);
     
     col = 2.*vec3(0.88,0.89,0.91);
-}
+    
+    d = abs(length(z)-.07)-.01; // blu ring inside with gold
+    col = mix(col, 3.5*vec3(0.00,0.18,0.36), sm(d));
+    col = mix(col, 2.*vec3(0.64,0.61,0.42), sm(abs(d)-.002));
+    
+    vec3 ca;
+    
+    if(yi < .5)
+    {
+        ca = 1.8*vec3(0.97,0.24,0.24);
+        d5711(15.*z, d);
+    }
+    else if(yi < 1.5)
+    {
+        ca = 2.8*vec3(0.03,0.39,0.35);
+        dfarbrausch(15.*z, d);
+    }
+    else if(yi < 2.5)
+    {
+        ca = 2.2*sqrt(vec3(0.83,0.42,0.01));
+        dhaujobb(15.*z, d);
+    }
+    else
+    {
+        ca = c.yxy;
+        d = 1.;
+    }
 
-float sm(in float d)
-{
-    return smoothstep(1.5/iResolution.y, -1.5/iResolution.y, d);
+    
+    float da = abs(length(z)-.09)-.002;
+    col = mix(col, ca, sm(da)); // red outside
+    
+    da = length(z)-.055; // red inside
+    col = mix(col, ca, sm(da));
+    
+    col = mix(col, 2.*vec3(0.88,0.89,0.91), sm(d/15.)); // logo
 }
 
 void illuminate(inout vec3 col, in vec3 dir, in vec3 l, in vec3 n, in vec3 x, in vec2 s)
@@ -441,6 +642,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     {
         if(s.y <= 1.) col *= .4;
     }
+    
+//     greetings_texture(uv, col);
+    
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
 
