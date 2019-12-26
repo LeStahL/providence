@@ -326,6 +326,196 @@ void dhaujobb(in vec2 x, out float d)
     d = d0;
 }
 
+void dmercury(in vec2 x, out float d)
+{
+//     dpolygon(.5*x,6.0,d);
+    d = 1.;
+    float da;
+
+    x += .1*c.yx;
+
+    // Upper part
+    dbox(x-.35*c.yx,vec2(.4,.35), da);
+    d = min(d, da);
+    dbox(x-.7*c.yx, vec2(.2,.2), da);
+    d = max(d,-da);
+    dbox(x-.25*c.yx,vec2(.2,.05),da);
+    d = max(d,-da);
+    
+    // Lower part
+    dbox(x+.2*c.yx,vec2(.1,.4),da);
+    d = min(d, da);
+    dbox(x+.2*c.yx, vec2(.4,.1),da);
+    d = min(d, da);
+}
+
+void drevision(in vec2 x, in float r, out float dst)
+{
+    float l = length(x),
+        p = atan(x.y,x.x),
+	    d = abs(l-r*.07)-.02, 
+        k1 = abs(l-r*.16)-.03,
+        k2 = abs(l-r*.21)-.02, 
+        k3 = abs(l-r*.35)-.03,
+        k4 = abs(l-r*.45)-.02;
+    vec4 n1;
+    lfnoise(1.*c.xx-3.*iTime, n1.x);
+    lfnoise(2.*c.xx-2.4*iTime, n1.y);
+    lfnoise(3.*c.xx-2.9*iTime, n1.z);
+    lfnoise(4.*c.xx-3.1*iTime, n1.w);
+    n1 = mix(n1,c.yyyy, clamp((iTime-24.)/2.,0.,1.));
+    d = min(d, mix(d, abs(l-.11)-.03, step(p, -1.71)*step(-2.73, p)));
+    d = min(d, mix(d, k1, step(p+n1.x, 3.08)*step(2.82,p)));
+    d = min(d, mix(d, k1, step(p+n1.x, 1.47)*step(.81,p)));
+    d = min(d, mix(d, k1, step(p+n1.x, -.43)*step(-1.19,p)));
+    d = min(d, mix(d, k2, step(p+n1.y, -2.88)*step(-pi,p)));
+    d = min(d, mix(d, k2, step(p+n1.y, pi)*step(2.38,p)));
+    d = min(d, mix(d, k2, step(p+n1.y, 2.1)*step(.51,p)));
+    d = min(d, mix(d, k2, step(p+n1.y, .3)*step(-1.6,p)));
+    d = min(d, abs(l-.24)-.02);
+    d = min(d, mix(d, k3, step(p+n1.z, -2.18)*step(-pi, p)));
+    d = min(d, mix(d, k3, step(p+n1.z, -1.23)*step(-1.7, p)));
+    d = min(d, mix(d, k3, step(p+n1.z, -.58)*step(-.78, p)));
+    d = min(d, mix(d, k3, step(p+n1.z, 0.)*step(-.29, p)));
+    d = min(d, mix(d, k3, step(p+n1.z, 1.25)*step(1.06, p)));
+    d = min(d, mix(d, k3, step(p+n1.z, 1.99)*step(.5*pi, p)));
+    d = min(d, abs(l-.41)-.03);
+    d = min(d, mix(d, k4, step(p+n1.w, 1.04)*step(.04, p)));
+    d = min(d, mix(d, k4, step(p+n1.w, -2.2)*step(-2.34, p)));
+    
+    dst = d-.01;
+}
+
+// Adapted from iq, https://www.shadertoy.com/view/XsXSz4
+void dtriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2, out float dst)
+{
+	vec2 e0 = p1 - p0;
+	vec2 e1 = p2 - p1;
+	vec2 e2 = p0 - p2;
+
+	vec2 v0 = p - p0;
+	vec2 v1 = p - p1;
+	vec2 v2 = p - p2;
+
+	vec2 pq0 = v0 - e0*clamp( dot(v0,e0)/dot(e0,e0), 0.0, 1.0 );
+	vec2 pq1 = v1 - e1*clamp( dot(v1,e1)/dot(e1,e1), 0.0, 1.0 );
+	vec2 pq2 = v2 - e2*clamp( dot(v2,e2)/dot(e2,e2), 0.0, 1.0 );
+    
+    float s = sign( e0.x*e2.y - e0.y*e2.x );
+    vec2 d = min( min( vec2( dot( pq0, pq0 ), s*(v0.x*e0.y-v0.y*e0.x) ),
+                       vec2( dot( pq1, pq1 ), s*(v1.x*e1.y-v1.y*e1.x) )),
+                       vec2( dot( pq2, pq2 ), s*(v2.x*e2.y-v2.y*e2.x) ));
+
+	dst = -sqrt(d.x)*sign(d.y);
+}
+
+void dschnappsgirls(in vec2 x, out float d)
+{
+//     dpolygon(.5*x,6.0,d);
+    float da, d0;
+    
+    // Dress
+    dtriangle(x, vec2(-.1,-.3), vec2(.5,-.3), vec2(.2, .6), d0);
+    dlinesegment(x, vec2(-.1,.325), vec2(.5,.325), da);
+    stroke(da,.06,da);
+    d0 = max(d0,-da);
+    
+    // Head
+    dcircle(7.*(x-vec2(.2,.5)), da);
+    d0 = max(d0, -da+.5);
+    d0 = min(d0, da/7.);
+    
+    // Legs
+    dlinesegment(x, vec2(.125,-.3), vec2(.125,-.6), da);
+    stroke(da, .06, da);
+    d0 = min(d0, da);
+    dlinesegment(x, vec2(.275,-.3), vec2(.275,-.6), da);
+    stroke(da, .06, da);
+    d0 = min(d0, da);
+    
+    // Shoulders
+    dlinesegment(x, vec2(0.05,.25), vec2(.35,.25), da);
+    stroke(da, .085, da);
+    d0 = min(d0, da);
+    
+    // Arms
+    dlinesegment(x, vec2(.385,.25), vec2(.5, -.1), da);
+    stroke(da, .055, da);
+    d0 = min(d0, da);
+    dlinesegment(x, vec2(.017,.25), vec2(-.1, -.1), da);
+    stroke(da, .055, da);
+    d0 = min(d0, da);
+    
+    // Glass
+    dtriangle(x, vec2(-.6,.3), vec2(-.4,.1), vec2(-.2,.3), da);
+    stroke(da, .0125, da);
+    d0 = min(d0, da);
+    dlinesegment(x, vec2(-.4,.15), vec2(-.4,-.1), da);
+    stroke(da, .0125, da);
+    d0 = min(d0, da);
+    dtriangle(x, vec2(-.5,-.15), vec2(-.3,-.15), vec2(-.4,-.1), da);
+    d0 = min(d0, da);
+    
+    // Liquid
+    dtriangle(x, vec2(-.55,.25), vec2(-.4,.1), vec2(-.25,.25), da);
+    d0 = min(d0, da);
+    
+    // Salad
+    dlinesegment(x, vec2(-.4,.1), vec2(-.2,.5), da);
+    stroke(da, .01, da);
+    d0 = min(d0, da);
+    dcircle(24.*(x-vec2(-.3,.3)), da);
+    d0 = min(d0, da/24.);
+    dcircle(24.*(x-vec2(-.25,.4)), da);
+    d0 = min(d0, da/24.);
+    
+//     d = max(d, -d0);
+    d = d0;
+}
+
+void dear(in vec2 x, out float d)
+{
+    d = abs(2.*x.y)
+        -.95+smoothstep(0.,.5,clamp(abs(x.x),0.,1.))
+        -.5*min(-abs(x.x),.01);
+}
+
+void dspacepigs(in vec2 x, out float d)
+{
+//     dpolygon(.5*x,6.0,d);
+    float da, d0;
+    
+    // Head
+    dcircle(2.5*x,d0);
+    d0 /= 2.5;
+    
+    // Ears
+    dear(vec2(2.,5.)*x-vec2(.8,1.3), da);
+    d0 = min(d0,da/10.);
+    dear(vec2(2.,5.)*x+vec2(.8,-1.3), da);
+    d0 = min(d0,da/10.);
+    
+    // Nose
+    dcircle(6.*x-vec2(0.,-.5),da);
+    d0 = max(d0,-da/6.);
+    dcircle(24.*x-vec2(-1.5,-2.),da);
+    d0 = min(d0,da/24.);
+    dcircle(24.*x-vec2(1.5,-2.),da);
+    d0 = min(d0,da/24.);
+    
+    // Eyes
+    dcircle(16.*x-vec2(-3.5,2.5),da);
+    d0 = max(d0,-da/16.);
+    dcircle(16.*x-vec2(3.5,2.5),da);
+    d0 = max(d0,-da/16.);
+    dcircle(24.*x-vec2(-5.,3.5),da);
+    d0 = min(d0,da/24.);
+    dcircle(24.*x-vec2(5.,3.5),da);
+    d0 = min(d0,da/24.);
+    d = d0;
+//     d = max(d, -d0);
+}
+
 void add(in vec2 sda, in vec2 sdb, out vec2 sdf)
 {
     sdf = (sda.x<sdb.x)?sda:sdb;
@@ -467,6 +657,8 @@ void greetings_texture(in vec2 uv, out vec3 col)
     col = mix(col, 2.*vec3(0.64,0.61,0.42), sm(abs(d)-.002));
     
     vec3 ca;
+    yi = floor(yi);
+    yi = mod(yi, 7.);
     
     if(yi < .5)
     {
@@ -482,6 +674,26 @@ void greetings_texture(in vec2 uv, out vec3 col)
     {
         ca = 2.2*sqrt(vec3(0.83,0.42,0.01));
         dhaujobb(15.*z, d);
+    }
+    else if(yi < 3.5)
+    {
+        ca = 2.2*sqrt(vec3(0.95,0.26,0.60));
+        dmercury(15.*z, d);
+    }
+    else if(yi < 4.5)
+    {
+        ca = 1.*c.xxx;
+        drevision(15.*z, 1., d);
+    }
+    else if(yi < 5.5)
+    {
+        ca = 2.*c.yyx;//1.8* vec3(0.72,0.62,0.05);
+        dschnappsgirls(15.*z, d);
+    }
+    else if(yi < 6.5)
+    {
+        ca = c.yyy;//1.8* vec3(0.72,0.62,0.05);
+        dspacepigs(15.*z, d);
     }
     else
     {
