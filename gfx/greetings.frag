@@ -209,8 +209,18 @@ void scene(in vec3 x, out vec2 sdf)
     rand(yi*c.xx, na);
 //     mat2 mm = mat2(cos(pi*na), sin(pi*na), -sin(pi*na), cos(pi*na));
 //     y = mm * vec2(x.x-.5*na, y).x;
+    vec2 z = vec2(x.x-.5*na, y);
     
-    dbeerpolygon(vec2(x.x-.5*na, y)*8., 6.,smoothstep(-.05,.1,x.z)*smoothstep(.25,.1,x.z), d);
+    // Bierdeckel
+    d = length(z.xy+.3*c.xy)-.1;
+    zextrude(x.z, d, .005, d);
+    add(sdf, vec2(d, -1.), sdf);
+    
+    //Gläser
+    float phi = 2.*pi*na;
+    mat2 mm = mat2(cos(phi), sin(phi), -sin(phi), cos(phi));
+    z = mm * z;
+    dbeerpolygon(z*8., 6.,smoothstep(-.05,.1,x.z)*smoothstep(.25,.1,x.z), d);
     float da = d, dc = d;
     zextrude(x.z, d, .4, d);
     zextrude(x.z, da, .5, da);
@@ -220,18 +230,14 @@ void scene(in vec3 x, out vec2 sdf)
     d /= 12.;
     
     // Handle
-    dspline3(vec3(x.x-.5*na, y, abs(x.z-.1)), vec3(.11, 0., .0), vec3(.11,0.,.06), vec3(.05, 0.,.05), da);
+    dspline3(vec3(z, abs(x.z-.1)), vec3(.11, 0., .0), vec3(.11,0.,.06), vec3(.05, 0.,.05), da);
     da = abs(da)-.01;
-    da = abs(da)-.0005;
+    da = abs(da)-.001;
     smoothmin(d, da, .02, d);
     add(sdf, vec2(d, 1.), sdf);
     
     // Beer
-//     d = abs(d)-.01;
-//     dc += .04;
-//     dc = abs(dc
     zextrude(x.z, dc, .3, d);
-//     d = d-.01;
     d /= 12.;
     add(sdf, vec2(d,2.), sdf);
     
@@ -270,6 +276,23 @@ void floor_texture(in vec2 uv, in vec3 n, inout vec3 col)
     col = mix(col,vec3(0.87,0.52,0.13), clamp(.1*dot(n, c.xyx),0.,1.));
 }
 
+void greetings_texture(in vec2 uv, out vec3 col)
+{
+    uv.y += .3*iTime;
+    uv.x -= .4;
+    
+    float dx, dy;
+    lfnoise(uv.y*c.xx, dx);
+    dx *= .0005;
+    mfnoise(uv.y*c.xx, 1.,100., .15, dy);
+    dy = .9+.1*dy;
+    
+    float na;
+    mfnoise((uv.x-dx)*c.xx*tanh(dy), 40., 4000., .75, na);
+    
+    col = 2.*vec3(0.88,0.89,0.91);
+}
+
 float sm(in float d)
 {
     return smoothstep(1.5/iResolution.y, -1.5/iResolution.y, d);
@@ -278,7 +301,15 @@ float sm(in float d)
 void illuminate(inout vec3 col, in vec3 dir, in vec3 l, in vec3 n, in vec3 x, in vec2 s)
 {
     vec3 c1;
-    if(s.y == 0.)
+    if(s.y == -1.)
+    {
+        greetings_texture(x.xy, c1);
+        c1 = .1*c1 
+            + .2*c1*dot(l, n)
+            + 1.4*c1*pow(abs(dot(reflect(l,n),dir)),2.);
+        col = c1;
+    }
+    else if(s.y == 0.)
     {
         floor_texture(x.xy, n, c1);
         c1 = .1*c1 
@@ -379,42 +410,37 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             //             d += s.x;
                     }
                     
-                    if(i<N)
-                    {
+//                     if(i<N)
+//                     {
                         normal(x, n, 5.e-5);
                         l = normalize(.5*n);
                         
+//                     }
                         illuminate(col, dir, l ,n, x, s);
-                    }
                 }
             }
         }
     }
 
-//     col = mix(col, mix(2.3*vec3(0.80,0.55,0.47),vec3(0.39,0.54,0.57), clamp((length(uv))/.3,0.,1.)), clamp(sqrt(d)/3.,0.,1.));
-    
-//     col *= col;
-//     col = clamp(col, 0., 1.);
-//     
-//     // Snowflakes
-//     for(float ka = 0.; ka < 3.; ka += 1.)
-//     {
-//         vec2 dx;
-//         lfnoise(2.*uv-iTime, dx.x);
-//         lfnoise(2.*uv-iTime-1337., dx.y);
-//     
-//         float v, vc;
-//         vec2 vi;
-//         float vsize = 16.+8.*ka;
-//         dvoronoi(vsize*(uv+.5*iTime*c.yx-.1*dx), v, vi, vc);
-//         vc /= vsize;
-//         vi /= vsize;
-//         col = mix(col, c.xxx, sm((length(vi-uv-.5*iTime*c.yx+.1*dx)-(.1-.2*ka)*vc)/(5.)));
-//     }
-    
-//     col = sqrt(col);
-//     col *= col; //FIXME: scale?
     col *= col*col*col;
+    
+    o = x;
+    dir = normalize(-.2*c.xyz);
+    d = 1.e-2;
+    
+    for(i = 0; i<N; ++i)
+    {
+        x = o + d * dir;
+        scene(x,s);
+//         s.x -= .01; // Soften shadow
+        if(s.x < 1.e-4) break;
+        d += s.x;
+    }
+    
+    if(d < length(-.2*c.xyz)) // We are in the dark
+    {
+        if(s.y <= 1.) col *= .4;
+    }
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
 
