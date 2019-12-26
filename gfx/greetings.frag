@@ -202,15 +202,18 @@ void scene(in vec3 x, out vec2 sdf)
     x.x += .5;
     
     // Beer glass body
-    const float lsize = 1.;
+    const float lsize = .5;
     float y = mod(x.y, lsize)-.5*lsize,
         d,
         yi = (x.y-y)/lsize;
     rand(yi*c.xx, na);
+//     mat2 mm = mat2(cos(pi*na), sin(pi*na), -sin(pi*na), cos(pi*na));
+//     y = mm * vec2(x.x-.5*na, y).x;
+    
     dbeerpolygon(vec2(x.x-.5*na, y)*8., 6.,smoothstep(-.05,.1,x.z)*smoothstep(.25,.1,x.z), d);
     float da = d, dc = d;
-    zextrude(x.z-.2, d, .2, d);
-    zextrude(x.z-.25, da, .25, da);
+    zextrude(x.z, d, .4, d);
+    zextrude(x.z, da, .5, da);
     d = max(d, -da);
     
     d = abs(d)-.01;
@@ -219,6 +222,7 @@ void scene(in vec3 x, out vec2 sdf)
     // Handle
     dspline3(vec3(x.x-.5*na, y, abs(x.z-.1)), vec3(.11, 0., .0), vec3(.11,0.,.06), vec3(.05, 0.,.05), da);
     da = abs(da)-.01;
+    da = abs(da)-.0005;
     smoothmin(d, da, .02, d);
     add(sdf, vec2(d, 1.), sdf);
     
@@ -226,7 +230,7 @@ void scene(in vec3 x, out vec2 sdf)
 //     d = abs(d)-.01;
 //     dc += .04;
 //     dc = abs(dc
-    zextrude(x.z-.075, dc, .15, d);
+    zextrude(x.z, dc, .3, d);
 //     d = d-.01;
     d /= 12.;
     add(sdf, vec2(d,2.), sdf);
@@ -295,7 +299,7 @@ void illuminate(inout vec3 col, in vec3 dir, in vec3 l, in vec3 n, in vec3 x, in
         c1 = mix(vec3(1.00,0.99,0.35), vec3(0.97,0.72,0.00), 1.-clamp(x.z/.2,0.,1.));
         c1 = .1*c1 
             + .2*c1*dot(l, n)
-            + 2.4*c1*pow(abs(dot(reflect(l,n),dir)),2.);
+            + 1.8*c1*pow(abs(dot(reflect(l,n),dir)),2.);
         col = mix(col, c1, .4);
     }
 }
@@ -308,7 +312,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         dsky_sphere;
     uv *= .5;
     vec3 col = c.xxx,
-        o0 = .3*c.yyx+1.*c.yzy,
+        o0 = .4*c.yyx+1.*c.yzy,
         o = o0,
         r = c.xyy,
         t = c.yyy, 
@@ -318,7 +322,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         x,
         c1 = c.yyy,
         l;
-    int N = 250,
+    int N = 200,
         i;
     float d = 0.,
         dlower,
@@ -328,7 +332,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     d = -(o.z-.22)/dir.z;
     {
-    // Raymarch mountains
         for(i = 0; i<N; ++i)
         {
             x = o + d * dir;
@@ -354,7 +357,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             
             if(s.y >= 1.)
             {
-                for(int j = 0; j < 4; ++j)
+                for(int j = 0; j < 5; ++j)
                 {
                     o = x;
                     dir = refract(dir, n, .92);
@@ -411,7 +414,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
 //     col = sqrt(col);
 //     col *= col; //FIXME: scale?
-    col *= col*col;
+    col *= col*col*col;
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
 
