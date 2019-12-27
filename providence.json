@@ -27,8 +27,14 @@
         {
             "name": "Flowers",
             "prefix": "flowers",
-            "t_end": 190,
+            "t_end": 138,
             "t_start": 128
+        },
+        {
+            "name": "Greetings",
+            "prefix": "greetings",
+            "t_end": 190,
+            "t_start": 138
         }
     ]
 }

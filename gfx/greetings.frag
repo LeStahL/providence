@@ -535,6 +535,13 @@ void zextrude(in float z, in float d2d, in float h, out float d)
     d = min(max(w.x,w.y),0.0) + length(max(w,0.0));
 }
 
+void dbox3(in vec3 x, in vec3 b, out float d)
+{
+  vec3 da = abs(x) - b;
+  d = length(max(da,0.0))
+         + min(max(da.x,max(da.y,da.z)),0.0);
+}
+
 void scene(in vec3 x, out vec2 sdf)
 {
     x.y += .3*iTime;
@@ -595,6 +602,29 @@ void scene(in vec3 x, out vec2 sdf)
     add(sdf, vec2(d,2.), sdf);
     
     add(sdf, sda, sdf);
+    
+//     dbox3(vec3(z, x.z), vec3(.1,.1,.5), da);
+//     add(sdf, vec2(da, 1.), sdf);
+}
+
+void bounding_scene(in vec3 x, out float d)
+{
+    x.y += .3*iTime;
+    x.x += .1;
+    
+    // Floor over Bierdeckel
+    d = x.z-.005;
+    
+    // Bounds of beer glasses
+    const float lsize = .5;
+    float y = mod(x.y, lsize)-.5*lsize,
+        yi = (x.y-y)/lsize,
+        na;
+    rand(yi*c.xx, na);
+    vec2 z = vec2(x.x-.5*na, y);
+    float da;
+    dbox3(vec3(z, x.z), vec3(.1,.1,.5), da);
+    d = min(d,da);
 }
 
 void normal(in vec3 x, out vec3 n, in float dx)
@@ -775,6 +805,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     dir = normalize(t-o);
     
     d = -(o.z-.22)/dir.z;
+    
+    // pretrace
+//     for(i=0; i<10; ++i)
+//     {
+//         x = o + d * dir;
+//         bounding_scene(x, s.x);
+//         d += s.x;
+//     }
     {
         for(i = 0; i<N; ++i)
         {
@@ -820,7 +858,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
                             break;
                         }
                         d += min(s.x, 5.e-2);
-            //             d += s.x;
+//                         d += s.x;
                     }
                     
 //                     if(i<N)
@@ -846,7 +884,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         x = o + d * dir;
         scene(x,s);
 //         s.x -= .01; // Soften shadow
-        if(s.x < 1.e-4) break;
+        if(s.x < 1.e-3) break;
+        if(x.z > .22) break;
         d += s.x;
     }
     
