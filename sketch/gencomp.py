@@ -114,9 +114,9 @@ def pack_texture(size):
     offset = 1+3*len(text)
     print("Index:")
     for i in range(len(text)):
-    texture += struct.pack('B', ord(text[i]))
-    texture += struct.pack('H', offset)
-    offset += lengths[i]
+        texture += struct.pack('B', ord(text[i]))
+        texture += struct.pack('H', offset)
+        offset += lengths[i]
     print("> '"+text[i]+"' - "+str(lengths[i])+" bytes at "+str(offset)) 
     
     # Pack data
