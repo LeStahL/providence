@@ -46,6 +46,7 @@ set(SHADER_FILES
         gfx/branch.frag
         gfx/mountains.frag
         gfx/flowers.frag
+        gfx/greetings.frag
 )
 set(SHADER_SYMBOLS_PATH gfx/symbols/)
 set(STRINGS_FILE font/strings.txt)

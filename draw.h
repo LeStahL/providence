@@ -65,7 +65,8 @@ else if(t < t_flowers)
     glUniform1f(shader_uniform_gfx_mountains_iFader7, fader7);
 #endif
 }
-else {
+else if(t < t_greetings)
+{
     glUseProgram(shader_program_gfx_flowers.handle);
     glUniform1f(shader_uniform_gfx_flowers_iTime, t-t_flowers);
     glUniform2f(shader_uniform_gfx_flowers_iResolution, w, h);
@@ -78,6 +79,21 @@ else {
     glUniform1f(shader_uniform_gfx_flowers_iFader5, fader5);
     glUniform1f(shader_uniform_gfx_flowers_iFader6, fader6);
     glUniform1f(shader_uniform_gfx_flowers_iFader7, fader7);
+#endif
+}
+else {
+    glUseProgram(shader_program_gfx_greetings.handle);
+    glUniform1f(shader_uniform_gfx_greetings_iTime, t-t_greetings);
+    glUniform2f(shader_uniform_gfx_greetings_iResolution, w, h);
+#ifdef MIDI
+    glUniform1f(shader_uniform_gfx_greetings_iFader0, fader0);
+    glUniform1f(shader_uniform_gfx_greetings_iFader1, fader1);
+    glUniform1f(shader_uniform_gfx_greetings_iFader2, fader2);
+    glUniform1f(shader_uniform_gfx_greetings_iFader3, fader3);
+    glUniform1f(shader_uniform_gfx_greetings_iFader4, fader4);
+    glUniform1f(shader_uniform_gfx_greetings_iFader5, fader5);
+    glUniform1f(shader_uniform_gfx_greetings_iFader6, fader6);
+    glUniform1f(shader_uniform_gfx_greetings_iFader7, fader7);
 #endif
 }
 #endif

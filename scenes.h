@@ -6,6 +6,7 @@
 #define t_branch (64)
 #define t_mountains (96)
 #define t_flowers (128)
+#define t_greetings (138)
 #define duration (190)
 
 const double start_times[] = {
@@ -14,6 +15,7 @@ const double start_times[] = {
     t_branch,
     t_mountains,
     t_flowers,
+    t_greetings,
 };
 
 const char *scene_names[] = {
@@ -22,6 +24,7 @@ const char *scene_names[] = {
     "Branch",
     "Mountains",
     "Flowers",
+    "Greetings",
 };
 
 const unsigned int nscenes = ARRAYSIZE(start_times);
