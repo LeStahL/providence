@@ -51,7 +51,7 @@ font.set_char_size(48*64)
 fmt = '@e'
 
 # Pack number of chars
-texture = struct.pack(fmt, float(len(ordinals)));
+texture = bytes(0)
 data = bytes(0)
 index = bytes(0)
 offset = 2 + 2 * len(ordinals)
@@ -98,7 +98,7 @@ for char in ordinals:
     data += glyph_data
 
 # Assemble texture
-texture += struct.pack(fmt, float(offset)) + index + data
+texture += struct.pack(fmt, float(offset)) + struct.pack(fmt, float(len(ordinals))) + index + data
 
 print("Packing string database.")
 # Pack the string database index

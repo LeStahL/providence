@@ -12,6 +12,7 @@ void smoothmin(in float a, in float b, in float k, out float dst);
 
 void dglyph(in vec2 x, in float ordinal, in float size, out float dst)
 {
+    // Bounding box
     float dis;
     dbox(x, 2.*size*c.xx, dis);
     if(dis > 0.)
