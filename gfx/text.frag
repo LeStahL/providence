@@ -127,11 +127,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     }
     
 //     dstring((uv-.45*vec2(-.85*a,0.)), 3., .08, d); // Providence
-    dglyph(uv, 65., .08, d);
+    dglyph(uv, 68., .08, d);
 //     d -= .005;
     new.gba = mix(new.gba, c.xxx, sm(d));
     
-    dglyphpts(uv, 65., .08, d);
+    dglyphpts(uv, 68., .08, d);
     new.gba = mix(new.gba, c.xyy, sm(d));
     
    /* 

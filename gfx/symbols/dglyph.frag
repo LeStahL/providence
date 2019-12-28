@@ -23,7 +23,7 @@ void dglyph(in vec2 x, in float ordinal, in float size, out float dst)
     }
 
     // Find glyph offset in glyph index
-    float nglyphs, offset = 0;
+    float nglyphs, offset = 0.;
     rfloat(1., nglyphs);
         
     for(float i=0.; i<nglyphs; i+=1.)
@@ -109,7 +109,7 @@ void dglyph(in vec2 x, in float ordinal, in float size, out float dst)
             else 
             if(stacksize == 3)
             {
-                if(tstack[0] == 1. && tstack[1] == 1. && tstack[2] == 1.)
+                if(tstack[0] == 1. && tstack[2] == 1.)
                 {
                     dspline2(x/size, stack[0], stack[1], stack[2], da);
                     d = min(d, da*size);
@@ -144,7 +144,7 @@ void dglyph(in vec2 x, in float ordinal, in float size, out float dst)
         }
     }
     
-    stroke(d,.05*size,d);
+    stroke(d,.025*size,d);
 
     dst = d;
 }

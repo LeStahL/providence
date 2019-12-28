@@ -19,11 +19,13 @@ import freetype
 import numpy
 import struct
 import sys
+
+xmin = 1.e9
+xmax = -1.e9
     
 # Rescale to [-1., 1.]
 def rescale(x):
-    xmax = -1.e9
-    xmin = 1.e9
+    global xmin, xmax
     for xi in x:
         xmax = max(xmax, xi)
         xmin = min(xmin, xi)
@@ -133,6 +135,7 @@ for string in strings:
     
     # Update offset. We waste loads of space here by packing floats instead of chars! but I do not want to distinguish between two data types.
     offset += len(string)
+    print(offset)
     
 # Pack the database
 for string in strings:
