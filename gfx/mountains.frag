@@ -17,25 +17,9 @@ uniform float iFader7;
 const vec3 c = vec3(1.,0.,-1.);
 const float pi = acos(-1.);
 
-void rand(in vec2 x, out float n)
-{
-    x += 400.;
-    n = fract(sin(dot(sign(x)*abs(x) ,vec2(12.9898,78.233)))*43758.5453);
-}
+void rand(in vec2 x, out float n);
 
-void lfnoise(in vec2 t, out float n)
-{
-    vec2 i = floor(t);
-    t = fract(t);
-    t = smoothstep(c.yy, c.xx, t);
-    vec2 v1, v2;
-    rand(i, v1.x);
-    rand(i+c.xy, v1.y);
-    rand(i+c.yx, v2.x);
-    rand(i+c.xx, v2.y);
-    v1 = c.zz+2.*mix(v1, v2, t.y);
-    n = mix(v1.x, v1.y, t.x);
-}
+void lfnoise(in vec2 t, out float n);
 
 void lcfnoise(in vec2 t, out float n)
 {
@@ -70,75 +54,15 @@ void mfnoise(in vec2 x, in float d, in float b, in float e, out float n)
 // Creative Commons Attribution-ShareAlike 4.0 International Public License
 // Created by David Hoskins.
 // See https://www.shadertoy.com/view/4djSRW
-void hash22(in vec2 p, out vec2 d)
-{
-	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    d = fract((p3.xx+p3.yz)*p3.zy);
-}
+void hash22(in vec2 p, out vec2 d);
 
-void dist(in vec2 a, in vec2 b, out float d)
-{
-    d = length(b-a);
-}
 
-void nearest_controlpoint(in vec2 x, out vec2 p)
-{
-    float dmin = 1.e5, 
-        d;
-    vec2 dp,
-        y = floor(x);
-    
-    float i = 0.;
-    for(float i = -1.; i <= 1.; i += 1.)
-        for(float j = -1.; j <= 1.; j += 1.)
-        {
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            dist(x, dp, d);
-            if(d<dmin)
-            {
-                dmin = d;
-                p = dp;
-            }
-        }
-}
+void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance);
 
-void dvoronoi(in vec2 x, out float d, out vec2 p, out float control_distance)
-{
-    d = 1.e4;
-    vec2 y,
-        dp;
-    
-    nearest_controlpoint(x, p);
-    y = floor(p);
-    
-    control_distance = 1.e4;
-    
-    for(float i = -2.; i <= 2.; i += 1.)
-        for(float j = -2.; j <= 2.; j += 1.)
-        {
-            if(i==0. && j==0.) continue;
-            hash22(y+vec2(i,j), dp);
-            dp += y+vec2(i,j);
-            vec2 o = p - dp;
-            float l = length(o);
-            d = min(d,abs(.5*l-dot(x-dp,o)/l));
-            control_distance = min(control_distance,.5*l);
-        }
-}
-
-void add(in vec2 sda, in vec2 sdb, out vec2 sdf)
-{
-    sdf = (sda.x<sdb.x)?sda:sdb;
-}
+void add(in vec2 sda, in vec2 sdb, out vec2 sdf);
 
 // iq's smooth minimum
-void smoothmin(in float a, in float b, in float k, out float dst)
-{
-    float h = max( k-abs(a-b), 0.0 )/k;
-    dst = min( a, b ) - h*h*h*k*(1.0/6.0);
-}
+void smoothmin(in float a, in float b, in float k, out float dst);
 
 void scene(in vec3 x, out vec2 sdf)
 {
@@ -166,19 +90,7 @@ void scene(in vec3 x, out vec2 sdf)
     
 }
 
-void normal(in vec3 x, out vec3 n, in float dx)
-{
-    vec2 s, na;
-    
-    scene(x,s);
-    scene(x+dx*c.xyy, na);
-    n.x = na.x;
-    scene(x+dx*c.yxy, na);
-    n.y = na.x;
-    scene(x+dx*c.yyx, na);
-    n.z = na.x;
-    n = normalize(n-s.x);
-}
+void normal(in vec3 x, out vec3 n, in float dx);
 
 void floor_texture(in vec2 uv, in vec3 n, inout vec3 col)
 {

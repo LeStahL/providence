@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-project(providence)
+project(unsafe)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Configurables
@@ -82,7 +82,7 @@ add_custom_target(texture_packing
     BYPRODUCTS ${FONT_HEADER}
 )
 
-add_executable(providence
+add_executable(unsafe
     ls.c
     ${COMMON_HEADERS}
     ${DEMO_HEADERS}
@@ -91,34 +91,34 @@ add_executable(providence
     ${FRAGMENT_SHADERS}
     ${SHADER_FILES}
 )
-add_dependencies(providence minify_sfx)
-add_dependencies(providence minify_shaders)
-add_dependencies(providence texture_packing)
+add_dependencies(unsafe minify_sfx)
+add_dependencies(unsafe minify_shaders)
+add_dependencies(unsafe texture_packing)
 
-target_include_directories(providence SYSTEM PRIVATE "${OPENGL_INCLUDE_DIR}")
+target_include_directories(unsafe SYSTEM PRIVATE "${OPENGL_INCLUDE_DIR}")
 
-target_link_libraries(providence OpenGL::GL)
+target_link_libraries(unsafe OpenGL::GL)
 
 if(MSVC)
-    set_target_properties(providence PROPERTIES LINK_FLAGS "/ENTRY:demo /SUBSYSTEM:Windows /OPT:REF /OPT:ICF=10 /VERBOSE /NODEFAULTLIB")
-    target_compile_options(providence PRIVATE /Gy /O1 /fp:fast /GR- /GS- /MT )
+    set_target_properties(unsafe PROPERTIES LINK_FLAGS "/ENTRY:demo /SUBSYSTEM:Windows /OPT:REF /OPT:ICF=10 /VERBOSE /NODEFAULTLIB")
+    target_compile_options(unsafe PRIVATE /Gy /O1 /fp:fast /GR- /GS- /MT )
 
     if (MSVC_VERSION GREATER_EQUAL 1910) # VS2017
-        target_link_libraries(providence User32.lib Winmm.lib ucrt.lib msvcrt.lib vcruntime.lib Vfw32.lib)
+        target_link_libraries(unsafe User32.lib Winmm.lib ucrt.lib msvcrt.lib vcruntime.lib Vfw32.lib)
     else()
         # for debug output: User32.lib ucrt.lib msvcrt.lib
-        target_link_libraries(providence User32.lib Winmm.lib ucrt.lib msvcrt.lib)
+        target_link_libraries(unsafe User32.lib Winmm.lib ucrt.lib msvcrt.lib)
     endif()
 
     if (CMAKE_SIZEOF_VOID_P EQUAL 4 AND MINIFY_64K AND (MSVC_IDE OR CMAKE_BUILD_TYPE STREQUAL "Release"))
-        target_compile_definitions(providence PRIVATE "$<$<CONFIG:RELEASE>:MINIFY_64K>")
+        target_compile_definitions(unsafe PRIVATE "$<$<CONFIG:RELEASE>:MINIFY_64K>")
         find_program(KKRUNCHY_K7 kkrunchy_k7.exe HINTS "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/bin")
-        add_custom_command(TARGET providence COMMAND "$<$<CONFIG:RELEASE>:${KKRUNCHY_K7}>" ARGS --best "$<TARGET_FILE:providence>" --out "$<TARGET_FILE_DIR:providence>/providencec.exe" POST_BUILD)
+        add_custom_command(TARGET unsafe COMMAND "$<$<CONFIG:RELEASE>:${KKRUNCHY_K7}>" ARGS --best "$<TARGET_FILE:unsafe>" --out "$<TARGET_FILE_DIR:unsafe>/unsafec.exe" POST_BUILD)
     endif()
 else()
     find_package(SDL2 REQUIRED)
-    target_include_directories(providence SYSTEM PRIVATE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(providence ${SDL2_LIBRARIES})
+    target_include_directories(unsafe SYSTEM PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(unsafe ${SDL2_LIBRARIES})
 endif()
 
 
