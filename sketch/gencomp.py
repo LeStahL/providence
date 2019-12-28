@@ -1,4 +1,4 @@
-# gencomp - convert text to c texture content
+# gencomp - convert ordinals to c texture content
 # Copyright (C) 2017/2018 Alexander Kraus <nr4@z10.info>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,121 +35,197 @@
 
 import argparse
 import freetype
-import numpy as np
+import numpy
 import struct
 import sys
+    
+# Rescale to [-1., 1.]
+def rescale(x):
+    xmax = -1.e9
+    xmin = 1.e9
+    for xi in x:
+        xmax = max(xmax, xi)
+        xmin = min(xmin, xi)
+    ret = []
+    for xi in x:
+        ret += [ -1. + 2.*(xi-xmin)/(xmax-xmin) ]
+    return ret
 
-# Notify and quit
-def close(str):
-    print(str)
-    exit()
+# Read string database
+strings = None
+with open('strings.txt', 'rt', newline='\n') as f:
+    strings = f.readlines()
+    f.close()
 
-# CMD arg parser
-parser = argparse.ArgumentParser(description='Memory Texture Text Generation Tool by Team210.')
-parser.add_argument('-f', '--fontfile', dest='fontfile')
-parser.add_argument('-o', '--output', dest='outfile')
-args, rest = parser.parse_known_args()
-
-# Check args for consistency
-text = ""
-if rest != []:
-    text = list(set(rest[0]))
-    print("Unique character list is:", text)
-else:
-    text = [ chr(i) for i in range(32,127) ]
-    print("No text specified. Taking standard character list:", text)
-write_file = True
-if args.fontfile == None:
-    close("No font file specified. Doing nothing.")
-if args.outfile == None:
-    print("No output file selected. Writing to stdout instead.")
-    write_file = False
+# Get the list of unique contained ordinals
+ordinals = sorted(list(set(''.join(strings).replace('\n', ''))))
+nglyphs = len(ordinals)
+print("Packing glyph data of: ", ordinals)
 
 # Open font file
-font = freetype.Face(args.fontfile)
+font = freetype.Face('../thirdparty/Roboto_Mono/RobotoMono-Regular.ttf')
+font.set_char_size(48*64)
 
-# Specify format
-ftype = '>h'
+# Specify format, it is signed 16-bit ieee float
+fmt = '@e'
 
-# Pack the texture
-def pack_texture(size):
-    global font, text
-    # Process text
-    data = []
-    lengths = []
-    for char in text:
-        print("Processing char: "+char)
-        
-        # Load glyph outline
-        font.load_char(char)
-        glyph = font.glyph
-        outline = glyph.outline
-        
-        # Get outline points
-        points = np.array(outline.points, dtype=[('x',float), ('y',float)]) 
-        x = list(points['x'])
-        y = list(points['y'])
-        
-        # pack glyph data
-        n = len(x)
-        ncont = len(outline.contours)
+# Pack number of chars
+texture = struct.pack(fmt, float(len(ordinals)));
+data = bytes(0)
+index = bytes(0)
+offset = 2 + 2 * len(ordinals)
 
-        glyph_data = struct.pack('H', n)
-        fmt = '{:d}e'.format(n)
-        if n != 0:
-            glyph_data += struct.pack(fmt, *x)
-            glyph_data += struct.pack(fmt, *y)
-            glyph_data += struct.pack('{:d}B'.format(n), *outline.tags)
-        glyph_data += struct.pack('B', ncont)
-        if ncont != 0:
-            glyph_data += struct.pack('{:d}H'.format(ncont), *outline.contours)
-        
-        data += [ glyph_data ]
-        lengths += [ len(glyph_data) ]
+# Pack the ordinals
+for char in ordinals:
+    print("Processing char: "+char)
     
-    # 1 Byte, char: Number of contained glyphs
-    texture = struct.pack('B', len(text))
+    # pack offset
+    index += struct.pack(fmt, float(ord(char))) + struct.pack(fmt, float(offset))
     
-    # Pack index
-    offset = 1+3*len(text)
-    print("Index:")
-    for i in range(len(text)):
-        texture += struct.pack('B', ord(text[i]))
-        texture += struct.pack('H', offset)
-        offset += lengths[i]
-    print("> '"+text[i]+"' - "+str(lengths[i])+" bytes at "+str(offset)) 
+    # Load glyph outline
+    font.load_char(char)
+    glyph = font.glyph
+    outline = glyph.outline
     
-    # Pack data
-    for i in range(len(text)):
-        texture += data[i]
-    return texture
+    # Get outline points
+    points = numpy.array(outline.points, dtype=[('x',float), ('y',float)]) 
+    x = list(points['x'])
+    y = list(points['y'])
+    
+    x = rescale(x)
+    y = rescale(y)
+    
+    # pack glyph data
+    n = len(x)
+    ncont = len(outline.contours)
 
-# Function to minimize
-def f(size):
-    font.set_char_size(size)
-    texture = pack_texture(size)
+    glyph_data = struct.pack(fmt, n)
+    for xi in x:
+        glyph_data += struct.pack(fmt, xi)
+    for yi in y:
+        glyph_data += struct.pack(fmt, yi)
+    for ti in outline.tags:
+        glyph_data += struct.pack(fmt, ti)
+    glyph_data += struct.pack(fmt, ncont)
+    if ncont != 0:
+        for ci in outline.contours:
+            glyph_data += struct.pack(fmt, ti)
+            
+    # pack offset
+    offset += 3*n + ncont + 2
+    
+    data += glyph_data
 
-# Pack glyphs for specified alphabet into binary sequence
-texture = pack_texture(font, text, size)
+# Assemble texture
+texture += struct.pack(fmt, float(offset)) + index + data
 
-length = int(size/2)
-texs = str(int(np.ceil(np.sqrt(float(size)/4.))))
+print("Packing string database.")
+# Pack the string database index
+offset += 1 + 2*len(strings)
 
-print("packed font is "+str(size)+" bytes.")
-print("Required texture size:" + texs)
+# Pack the database length
+texture += struct.pack(fmt, float(len(strings)))
 
-array = struct.unpack('{:d}h'.format(length), texture)
-text = "//Generated by tx210 (c) 2018 NR4/Team210\n\n#ifndef FONT_H\n#define FONT_H\n\n"
-text += "const short font_texture[{:d}]".format(length)+" = {"
+# Pack the database index
+for string in strings:
+    # Pack offset
+    texture += struct.pack(fmt, float(offset))
+    
+    # Pack size
+    texture += struct.pack(fmt, float(len(string)));
+    
+    # Update offset. We waste loads of space here by packing floats instead of chars! but I do not want to distinguish between two data types.
+    offset += len(string)
+    
+# Pack the database
+for string in strings:
+    for char in string:
+        texture += struct.pack(fmt, float(ord(char)))
+
+print("Finished packing texture.")
+
+#Generate C header ordinals with texture data
+# Write output to c header file or stdout
+# Fill last 4-byte-block with zero
+length = int(len(texture)) # in bytes
+while ((length % 4) != 0):
+    texture += bytes(1)
+    length += 1
+print("Packed font and ordinals database is "+str(length)+" bytes.")
+
+# Get necessary texture size from data
+texs = str(int(numpy.ceil(numpy.sqrt(float(length)/4.))))
+print("Required texture size: " + texs)
+
+# Generate output header file
+array = []
+arrayf = []
+for i in range(int(numpy.ceil(length/2))):
+    array += [ struct.unpack('@H', texture[2*i:2*i+2]) ][0] 
+    arrayf += [ struct.unpack(fmt, texture[2*i:2*i+2]) ][0]
+text = "// Generated by tx210 (c) 2018 NR4/Team210\n\n#ifndef FONT_H\n#define FONT_H\n\n"
+text += "// Data:\n//"
+for val in arrayf:
+    text += ' ' + str(val) + ','
+text += "\nconst unsigned short font_texture[{:d}]".format(int(numpy.ceil(length/2)))+" = {"
 for val in array[:-1]:
     text += str(val) + ',' 
 text += str(array[-1]) + '};\n'
 text += "const int font_texture_size = " + str(texs) + ";"
 text += '\n#endif\n'
 
-if write_file:
-    with open(args.outfile, "wt") as f:
-        f.write(text)
-        f.close()
-else:
-    print(text)
+# Write to file
+with open("font.h", "wt", newline='\n') as f:
+    f.write(text)
+    f.close()
+    
+        
+        ##data += [ glyph_data ]
+        ##lengths += [ len(glyph_data) ]
+    
+    ## 1 Byte, char: Number of contained glyphs
+    #texture = struct.pack('B', len(ordinals))
+    
+    ## Pack index
+    #offset = 1+3*len(ordinals)
+    #print("Index:")
+    #for i in range(len(ordinals)):
+        #texture += struct.pack('B', ord(ordinals[i]))
+        #texture += struct.pack('H', offset)
+        #offset += lengths[i]
+    #print("> '"+ordinals[i]+"' - "+str(lengths[i])+" bytes at "+str(offset)) 
+    
+    ## Pack data
+    #for i in range(len(ordinals)):
+        #texture += data[i]
+    #return texture
+
+## Function to minimize
+#def f(size):
+    #font.set_char_size(size)
+    #texture = pack_texture(size)
+
+## Pack glyphs for specified alphabet into binary sequence
+#texture = pack_texture(font, ordinals, size)
+
+#length = int(size/2)
+#texs = str(int(numpy.ceil(numpy.sqrt(float(size)/4.))))
+
+#print("packed font is "+str(size)+" bytes.")
+#print("Required texture size:" + texs)
+
+#array = struct.unpack('{:d}h'.format(length), texture)
+#ordinals = "//Generated by tx210 (c) 2018 NR4/Team210\n\n#ifndef FONT_H\n#define FONT_H\n\n"
+#ordinals += "const short font_texture[{:d}]".format(length)+" = {"
+#for val in array[:-1]:
+    #ordinals += str(val) + ',' 
+#ordinals += str(array[-1]) + '};\n'
+#ordinals += "const int font_texture_size = " + str(texs) + ";"
+#ordinals += '\n#endif\n'
+
+#if write_file:
+    #with open(args.outfile, "wt") as f:
+        #f.write(ordinals)
+        #f.close()
+#else:
+    #print(ordinals)

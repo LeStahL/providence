@@ -1,36 +1,41 @@
-# gencomp - convert ordinals to c texture content
-# Copyright (C) 2017/2018 Alexander Kraus <nr4@z10.info>
+# Endeavor by Team210 - 64k intro by Team210 at Revision 2k19
+# Copyright (C) 2018  Alexander Kraus <nr4@z10.info>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import argparse
-import freetype
 import numpy
 import struct
-import sys
-    
-# Rescale to [-1., 1.]
-def rescale(x):
-    xmax = -1.e9
-    xmin = 1.e9
-    for xi in x:
-        xmax = max(xmax, xi)
-        xmin = min(xmin, xi)
-    ret = []
-    for xi in x:
-        ret += [ -1. + 2.*(xi-xmin)/(xmax-xmin) ]
-    return ret
+import fontgen
+
+# Pack everything as float. If executable size is a problem, this can be optimized slightly.
+# Pack alignment:
+# string database offset
+# nglyphs
+# for glyph in glyphs
+#     ordinal
+#     offset
+# for glyph in glyphs
+#     nquads
+#     for quad in quads
+#         x1 y1 x2 y2 x3 y3
+# nstrings
+# for string in nstrings
+#     offset
+#     length
+# for string in nstrings
+#     for char in string
+#         char
 
 # Read string database
 strings = None
@@ -38,71 +43,52 @@ with open('strings.txt', 'rt', newline='\n') as f:
     strings = f.readlines()
     f.close()
 
+# Font has only lowercase letters
+for i in range(len(strings)):
+    strings[i] = strings[i].lower().strip()
+    
 # Get the list of unique contained ordinals
 ordinals = sorted(list(set(''.join(strings).replace('\n', ''))))
 nglyphs = len(ordinals)
 print("Packing glyph data of: ", ordinals)
 
-# Open font file
-font = freetype.Face('../thirdparty/Roboto_Mono/RobotoMono-Regular.ttf')
-font.set_char_size(48*64)
-
-# Specify format, it is signed 16-bit ieee float
+# Pack number of glyphs
 fmt = '@e'
-
-# Pack number of chars
 texture = struct.pack(fmt, float(len(ordinals)));
-data = bytes(0)
-index = bytes(0)
-offset = 2 + 2 * len(ordinals)
 
-# Pack the ordinals
+# Pack the according glyph table
+pack_len = 2 + nglyphs * 2
+table = ""
 for char in ordinals:
-    print("Processing char: "+char)
+    # Pack ordinal
+    texture += struct.pack(fmt, float(ord(char)))
     
-    # pack offset
-    index += struct.pack(fmt, float(ord(char))) + struct.pack(fmt, float(offset))
+    # Pack offset
+    texture += struct.pack(fmt, float(pack_len))
     
-    # Load glyph outline
-    font.load_char(char)
-    glyph = font.glyph
-    outline = glyph.outline
+    # Update offset
+    pack_len += fontgen.pack_length(char)
     
-    # Get outline points
-    points = numpy.array(outline.points, dtype=[('x',float), ('y',float)]) 
-    x = list(points['x'])
-    y = list(points['y'])
-    
-    x = rescale(x)
-    y = rescale(y)
-    
-    # pack glyph data
-    n = len(x)
-    ncont = len(outline.contours)
+# Pack string database intex
+texture = struct.pack(fmt, float(pack_len)) + texture
 
-    glyph_data = struct.pack(fmt, n)
-    for xi in x:
-        glyph_data += struct.pack(fmt, xi)
-    for yi in y:
-        glyph_data += struct.pack(fmt, yi)
-    for ti in outline.tags:
-        glyph_data += struct.pack(fmt, ti)
-    glyph_data += struct.pack(fmt, ncont)
-    if ncont != 0:
-        for ci in outline.contours:
-            glyph_data += struct.pack(fmt, ti)
-            
-    # pack offset
-    offset += 3*n + ncont + 2
+# Pack the glyph data
+for char in ordinals:
+    # Get glyph inlines
+    glyph = fontgen.glyph(char)
     
-    data += glyph_data
-
-# Assemble texture
-texture += struct.pack(fmt, float(offset)) + index + data
+    # Pack number of quads
+    quads = glyph[0]
+    texture += struct.pack(fmt, float(len(quads)))
+    
+    # Pack quads
+    for quad in quads:
+        for i in range(6):
+            texture += struct.pack(fmt, float(quad[i]))
 
 print("Packing string database.")
 # Pack the string database index
-offset += 1 + 2*len(strings)
+offset = pack_len + 1 + 2*len(strings)
 
 # Pack the database length
 texture += struct.pack(fmt, float(len(strings)))
@@ -159,3 +145,6 @@ text += '\n#endif\n'
 with open("font.h", "wt", newline='\n') as f:
     f.write(text)
     f.close()
+
+
+
