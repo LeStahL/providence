@@ -32,6 +32,10 @@ def rescale(x):
         ret += [ -1. + 2.*(xi-xmin)/(xmax-xmin) ]
     return ret
 
+def rotate(x):
+    if len(x) == 0: return []
+    return x[1:] + [ x[0] ]
+
 # Read string database
 strings = None
 with open('strings.txt', 'rt', newline='\n') as f:
@@ -71,7 +75,12 @@ for char in ordinals:
     # Get outline points
     points = numpy.array(outline.points, dtype=[('x',float), ('y',float)]) 
     x = list(points['x'])
+    #x = rotate(x);
+    #x = rotate(x);
+    
     y = list(points['y'])
+    #y = rotate(y);
+    #y = rotate(y);
     
     x = rescale(x)
     y = rescale(y)
@@ -79,18 +88,25 @@ for char in ordinals:
     # pack glyph data
     n = len(x)
     ncont = len(outline.contours)
+    
+    tags = outline.tags
+    tags = [ ti & 0x1 for ti in tags ]
+    print(tags)
+    #print("tags:", len(tags), "x:", len(x))
+
+    #print(outline.contours)
 
     glyph_data = struct.pack(fmt, n)
     for xi in x:
         glyph_data += struct.pack(fmt, xi)
     for yi in y:
         glyph_data += struct.pack(fmt, yi)
-    for ti in outline.tags:
-        glyph_data += struct.pack(fmt, ti)
+    for ti in tags:
+        glyph_data += struct.pack(fmt, float(ti))
     glyph_data += struct.pack(fmt, ncont)
     if ncont != 0:
         for ci in outline.contours:
-            glyph_data += struct.pack(fmt, ti)
+            glyph_data += struct.pack(fmt, ci)
             
     # pack offset
     offset += 3*n + ncont + 2

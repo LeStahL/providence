@@ -59,7 +59,7 @@ void smoothmin(in float a, in float b, in float k, out float dst);
 void dint(in vec2 x, in float num, in float size, in float ndigits, out float dst);
 void dtime(in vec2 x, in float num, in float size, out float dst);
 void dspline2(in vec2 x, in vec2 p0, in vec2 p1, in vec2 p2, out float ds);
-
+void dglyphpts(in vec2 x, in float ascii, in float size, out float d);
 void addwindow(in vec2 uv, inout vec3 col, in vec2 dimension);
 
 float sm(float d)
@@ -126,9 +126,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         new.gba = mix(new.gba, c.xxx, sm(d));
     }
     
-    dstring((uv-.45*vec2(-.85*a,0.)), 3., .08, d); // Providence
-    d -= .005;
+//     dstring((uv-.45*vec2(-.85*a,0.)), 3., .08, d); // Providence
+    dglyph(uv, 65., .08, d);
+//     d -= .005;
     new.gba = mix(new.gba, c.xxx, sm(d));
+    
+    dglyphpts(uv, 65., .08, d);
+    new.gba = mix(new.gba, c.xyy, sm(d));
     
    /* 
     if(iTime < 20.)
