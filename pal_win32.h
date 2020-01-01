@@ -37,12 +37,69 @@ HDC hdc;
 HGLRC glrc;
 
 #ifdef RECORD
-HWND hRecordFilenameEdit, hCaptureWindow, hCaptureDriverComboBox ;
+HWND hRecordFilenameEdit, hFPSDropdown, hframeratetext;
+int fps = 60,
+    frame = 0;
 #endif 
 
 double get_sound_playback_time();
 void set_sound_playback_time(double time);
 void set_sound_playback_range(double time_begin, double time_end);
+
+int screenshot(char *fileName)
+{    
+    static unsigned char header[54] = {
+    0x42, 0x4D, 0x36, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    unsigned char *pixels = (unsigned char *) malloc(w * h * 3);
+    ((unsigned __int16 *) header)[ 9] = w;
+    ((unsigned __int16 *) header)[11] = h;
+
+    glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+
+    unsigned char temp;
+    for (unsigned int i = 0; i < w * h * 3; i += 3)
+    {
+        temp = pixels[i];
+        pixels[i] = pixels[i + 2];
+        pixels[i + 2] = temp;
+    }
+
+    HANDLE FileHandle;
+    unsigned long Size;
+
+    if (fileName == NULL)
+    {
+        char file[256];
+        do 
+        {
+            char buf[100];
+            SYSTEMTIME st;
+            GetLocalTime(&st);
+            sprintf(buf, "%.4u-%.2u-%.2u_%.2u-%.2u-%.2u", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+//             printf("buf: %s\n", buf);
+            sprintf(file,"Screenshot%s.bmp",buf);
+//             printf("file: %s\n", file);
+            FileHandle = CreateFile(file,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
+        } while (FileHandle == INVALID_HANDLE_VALUE);
+    } 
+    else 
+    {
+        FileHandle = CreateFile(fileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+        if (FileHandle == INVALID_HANDLE_VALUE) return 0;
+    }
+
+    WriteFile(FileHandle,header,sizeof(header),&Size,NULL);
+    WriteFile(FileHandle,pixels,w * h * 3,&Size,NULL);
+
+    CloseHandle(FileHandle);
+
+    free(pixels);
+    return 1;
+}
 
 int flip_buffers()
 {
@@ -69,12 +126,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			switch(wParam)
 			{
 				case VK_ESCAPE:
-#ifdef RECORD
-                    if(recording) 
-                    {
-                        capFileSaveAs(hCaptureWindow, record_filename);
-                    }
-#endif
 					ExitProcess(0);
 					break;
 				case VK_SPACE:
@@ -94,9 +145,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case WM_RBUTTONDOWN:
-#ifdef RECORD
-            if(recording) capFileSaveAs(hCaptureWindow, record_filename);
-#endif
 			ExitProcess(0);
 			break;
 //         case WM_MOUSEMOVE:
@@ -160,24 +208,22 @@ LRESULT CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     start_at_scene = SendMessage(hSender, CB_GETCURSEL, 0, 0);
 				}
 				break;
-#ifdef RECORDING
-                case 11:
+#ifdef RECORD
+                case 11: // record checkbox
                 {
                     recording = !recording;
-					if(recording)
-                    {
-						SendMessage(hSender, BM_SETCHECK, BST_CHECKED, 0);
-                        EnableWindow(hRecordFilenameEdit, TRUE);
-                        EnableWindow(hCaptureDriverComboBox, TRUE);
-                    }
-                    else
-                    {
-						SendMessage(hSender, BM_SETCHECK, BST_UNCHECKED, 0);
-                        EnableWindow(hRecordFilenameEdit, FALSE);
-                        EnableWindow(hCaptureDriverComboBox, FALSE);
-                    }
+                    SendMessage(hSender, BM_SETCHECK, recording?BST_CHECKED:BST_UNCHECKED, 0);
+                    EnableWindow(hRecordFilenameEdit, recording);
+                    EnableWindow(hFPSDropdown, recording);
+                    EnableWindow(hframeratetext, recording);
                 }
 				break;
+                case 13: // fps dropdown
+                    int index = SendMessage(hSender, CB_GETCURSEL, 0, 0);
+                    if(index == 0) fps = 60;
+                    else if(index == 1) fps = 30;
+                    else if(index == 2) fps = 25;
+                break;
 #endif
 			}
 			break;
@@ -340,32 +386,24 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 					 lwnd, (HMENU) 11, hInstance, NULL);
     
     // Add record filename text field
-    hRecordFilenameEdit = CreateWindow(WC_EDIT, TEXT("lightcyber.avi"), WS_VISIBLE | WS_CHILD | WS_BORDER ,100,150 ,175,25,lwnd, (HMENU) 12,NULL,NULL );
+    hRecordFilenameEdit = CreateWindow(WC_EDIT, TEXT("lightcyber.cap"), WS_VISIBLE | WS_CHILD | WS_BORDER ,100,150 ,175,25,lwnd, (HMENU) 12,NULL,NULL );
     EnableWindow(hRecordFilenameEdit, FALSE);
-    
-    // Add capture driver selector
-	hCaptureDriverComboBox = CreateWindow(WC_COMBOBOX, TEXT(""),
-        CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-        100, 180, 175, 680, lwnd, (HMENU)12, hInstance,
-        NULL);
-    char capture_device_name[80];
-    char capture_device_version[80];
 
-    for(int wIndex = 0; wIndex < 10; wIndex++) 
-    {
-        if (capGetDriverDescription(
-                wIndex, 
-                capture_device_name, 
-                sizeof (capture_device_name), 
-                capture_device_version, 
-                sizeof (capture_device_version)
-            )) 
-        {
-            SendMessage(hCaptureDriverComboBox, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) capture_device_name);
-        }
-    } 
-    SendMessage(hCaptureDriverComboBox, CB_SETCURSEL, 0, 0);
-    EnableWindow(hCaptureDriverComboBox, FALSE);
+    // Add FPS selector text
+    hframeratetext = CreateWindow(WC_STATIC, "Frame rate:", WS_VISIBLE | WS_CHILD | SS_LEFT, 10,180,100,100, lwnd, NULL, hInstance, NULL);
+    EnableWindow(hframeratetext, FALSE);
+    
+    // Add FPS selector
+    hFPSDropdown = CreateWindow(WC_COMBOBOX, TEXT(""),
+	 CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+	 100, 180, 175, 680, lwnd, (HMENU)13, hInstance,
+	 NULL);
+    SendMessage(hFPSDropdown, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) "60 FPS");
+    SendMessage(hFPSDropdown, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) "30 FPS");
+    SendMessage(hFPSDropdown, (UINT) CB_ADDSTRING, (WPARAM) 0, (LPARAM) "25 FPS");
+	SendMessage(hFPSDropdown, CB_SETCURSEL, 0, 0);
+    EnableWindow(hFPSDropdown, FALSE);
+    
 #endif
     
 	// Show the selector
@@ -379,21 +417,22 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 		DispatchMessage(&msg);
 	}
 
-#if RECORDING
-	if(recording)
-    {
-        // FIXME: add actually selected driver
-        SendMessage (hCaptureWindow, WM_CAP_DRIVER_CONNECT, 0, 0L); 
-    }
-#endif
-
 #ifdef DEBUG
 	printf("Rendering Demo with:\nSound ");
     if(muted)printf("muted");
     else printf("playing");
 	printf("\nResolution: %d * %d\n", w, h);
 	printf("FSAA: %d*\n", fsaa);
-    if(recording)printf("recording to %s\n", record_filename);
+#endif
+    
+#ifdef RECORD
+    if(recording) printf("recording demo to %s.\n", record_filename);
+    if(!CreateDirectory(record_filename, NULL))
+    {
+        DWORD err = GetLastError();
+        if(err == ERROR_ALREADY_EXISTS) printf("Dir exists.\n");
+        else if(err == ERROR_PATH_NOT_FOUND) printf("Parts of the path do not exist.\n");
+    }
 #endif
 
 	// Display demo window
@@ -434,22 +473,6 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
             hInstance,                                                  // Instance handle
             0                                                           // Additional application data
         );
-#ifdef RECORD
-    if(recording)
-    {
-        hCaptureWindow = capCreateCaptureWindow(
-            WindowClass,
-            WS_CHILD | WS_VISIBLE,
-            0,
-            0,
-            w,
-            h,
-            hwnd,
-            0                     
-        );
-        capCaptureSequence(hCaptureWindow); 
-    }
-#endif
     
     DEVMODE dma = { 0 };
     dma.dmSize = sizeof(dm);
@@ -499,12 +522,41 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
     
 	load_demo();
 
+#if defined RECORD
+    if(!recording)
+#else
     jump_to_scene(start_at_scene);
+    
+    if(recording)
+    {
+        char filename[1024];
+        sprintf(filename, "%s\\sfx.raw", record_filename);
+        FILE *f = fopen(filename, "wb");
+        fwrite(smusic1, sizeof(short), 2*nblocks1*block_size, f);
+        fclose(f);
+    }
+#endif
 
+#ifdef RECORD
+    double spf = 1./(double)(fps);
+#endif
+    
     // Main loop
     while(flip_buffers())
 	{
+#if defined RECORD
+        if(recording)
+        {
+            t_now = (double)frame * spf;
+            ++frame;
+        }
+        else
+        {
+            t_now = get_sound_playback_time();
+        }
+#else
         t_now = get_sound_playback_time();
+#endif
 
 		draw();
 	}

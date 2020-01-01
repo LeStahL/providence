@@ -494,9 +494,6 @@ void draw()
     t = t_now;
     if(t > t_end)
     {
-#ifdef RECORD
-        if(recording) capFileSaveAs(hCaptureWindow, record_filename); 
-#endif
         ExitProcess(0);
     }
     
@@ -524,10 +521,11 @@ void draw()
 
     quad();
     
-#ifndef DEBUG
+#if !defined DEBUG
     // Render to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+#endif 
+
     
     glUseProgram(shader_program_gfx_text.handle);
     glUniform2f(shader_uniform_gfx_text_iResolution, w, h);
@@ -598,6 +596,16 @@ void draw()
 //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, font_texture_size, font_texture_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     
     quad();
+#endif
+    
+#if defined RECORD
+    // Gen filename
+    if(recording)
+    {
+        char filename[1024];
+        sprintf(filename, "%s\\frame%06d.bmp", record_filename, frame);
+        screenshot(filename);
+    }
 #endif
     
     glBindTexture(GL_TEXTURE_2D, 0);

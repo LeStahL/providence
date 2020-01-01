@@ -1,0 +1,1 @@
+"C:\Users\NR4\Downloads\ffmpeg-20191229-e20c6d9-win64-static\ffmpeg-20191229-e20c6d9-win64-static\bin\ffmpeg.exe" -f s16le -ac 2 -ar 48000 -i sfx.raw sfx.wav
