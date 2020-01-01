@@ -426,12 +426,15 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 #endif
     
 #ifdef RECORD
-    if(recording) printf("recording demo to %s.\n", record_filename);
-    if(!CreateDirectory(record_filename, NULL))
+    if(recording) 
     {
-        DWORD err = GetLastError();
-        if(err == ERROR_ALREADY_EXISTS) printf("Dir exists.\n");
-        else if(err == ERROR_PATH_NOT_FOUND) printf("Parts of the path do not exist.\n");
+        printf("recording demo to %s.\n", record_filename);
+        if(!CreateDirectory(record_filename, NULL))
+        {
+            DWORD err = GetLastError();
+            if(err == ERROR_ALREADY_EXISTS) printf("Dir exists.\n");
+            else if(err == ERROR_PATH_NOT_FOUND) printf("Parts of the path do not exist.\n");
+        }
     }
 #endif
 
@@ -524,9 +527,10 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 
 #if defined RECORD
     if(!recording)
-#else
+#endif
     jump_to_scene(start_at_scene);
-    
+
+#if defined RECORD    
     if(recording)
     {
         char filename[1024];
@@ -535,12 +539,9 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
         fwrite(smusic1, sizeof(short), 2*nblocks1*block_size, f);
         fclose(f);
     }
-#endif
-
-#ifdef RECORD
     double spf = 1./(double)(fps);
 #endif
-    
+
     // Main loop
     while(flip_buffers())
 	{
