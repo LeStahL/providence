@@ -19,7 +19,7 @@
 #define DEBUG // Shader debug i/o
 #define DEBUG_SHADER // Shader compile and link errors
 #define MIDI // APC40 mkII controls
-// #define RECORD // Compile in recording capabilities
+#define RECORD // Compile in recording capabilities
 
 #define DEMO
 
