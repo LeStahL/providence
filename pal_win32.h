@@ -386,7 +386,9 @@ int WINAPI demo(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 					 lwnd, (HMENU) 11, hInstance, NULL);
     
     // Add record filename text field
-    hRecordFilenameEdit = CreateWindow(WC_EDIT, TEXT("lightcyber.cap"), WS_VISIBLE | WS_CHILD | WS_BORDER ,100,150 ,175,25,lwnd, (HMENU) 12,NULL,NULL );
+    char *capname[1024];
+    sprintf(capname, "%s.cap", demoname);
+    hRecordFilenameEdit = CreateWindow(WC_EDIT, capname, WS_VISIBLE | WS_CHILD | WS_BORDER ,100,150 ,175,25,lwnd, (HMENU) 12,NULL,NULL );
     EnableWindow(hRecordFilenameEdit, FALSE);
 
     // Add FPS selector text
